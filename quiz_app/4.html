@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Korean Review - Set 4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .quiz-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .disabled { pointer-events: none; opacity: 0.7; }
+        #progress-bar, #feedback-modal { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-xl">
+        <div id="quiz-screen" class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 hidden">
+            <div id="quiz-header" class="mb-6">
+                <p class="text-sm font-semibold text-indigo-600">Set 4</p>
+                <p id="question-counter" class="text-sm font-semibold text-indigo-600">Question 1 of 50</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                    <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 2%"></div>
+                </div>
+            </div>
+            <div id="question-container">
+                <p id="question-text" class="text-xl md:text-2xl font-bold text-gray-900 mb-4 min-h-[5rem]"></p>
+                <p id="question-hint" class="text-base text-gray-500 mb-6 p-3 bg-gray-50 rounded-lg"></p>
+                <div id="options-container" class="space-y-3"></div>
+            </div>
+        </div>
+        <div id="start-screen" class="text-center">
+            <h1 class="text-4xl md:text-5xl font-black text-gray-800">Final Korean Review</h1>
+            <p class="text-gray-600 mt-4 text-lg">Set 4: Honorifics & Situational Expressions</p>
+            <button id="start-btn" class="w-full max-w-sm mx-auto mt-8 bg-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-700 transition duration-300 text-xl shadow-lg">Start Quiz (50 Questions)</button>
+        </div>
+        <div id="end-screen" class="hidden text-center bg-white rounded-2xl shadow-2xl p-8 md:p-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Set 4 Complete!</h1>
+            <p class="text-gray-600 mt-2 text-xl">수고하셨습니다!</p>
+            <div class="my-8">
+                <p class="text-lg text-gray-700">Your Score:</p>
+                <p id="final-score" class="text-6xl font-black text-indigo-600 my-1"></p>
+                <p id="score-percentage" class="text-2xl font-semibold text-gray-500"></p>
+            </div>
+            <button id="restart-btn" class="w-full max-w-sm mx-auto bg-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-700 transition">Restart Set 4</button>
+        </div>
+    </div>
+    <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 text-center">
+            <h2 id="feedback-title" class="text-2xl font-bold mb-2"></h2>
+            <p id="feedback-text" class="text-gray-700 text-lg mb-6"></p>
+            <button id="modal-next-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
+        </div>
+    </div>
+    <script>
+        const quizData = [
+            // Add 50 new questions for Set 4 here
+            { question: "How do you say 'My mother is sleeping' using honorifics?", options: ["어머니가 자요.", "어머니께서 자요.", "어머니께서 주무세요.", "어머니가 주무세요."], answer: 2, hint: "📌 Hint: The honorific verb for '자다' (to sleep) is '주무시다', and use the honorific particle '께서'.", explanation: "'어머니께서 주무세요' is the correct honorific form. '께서' is the honorific subject particle and '주무시다' is the honorific verb for 'to sleep'." },
+            { question: "What is the honorific form of '있다' (to be at a location)?", options: ["있으세요", "계세요", "가지세요", "주무세요"], answer: 1, hint: "📌 Hint: This is a special honorific verb, not just adding '-(으)시-'.", explanation: "'계시다' (present tense '계세요') is the special honorific verb for '있다'." },
+            { question: "How do you say 'The professor is not at school' politely?", options: ["교수님은 학교에 없어요.", "교수님께서 학교에 안 계세요.", "교수님께서 학교에 없으세요.", "교수님이 학교에 안 계세요."], answer: 1, hint: "📌 Hint: The negative of '계시다' is '안 계시다'.", explanation: "'교수님께서 학교에 안 계세요' is the correct polite and negative form." },
+            { question: "What is the honorific particle that replaces '에게' (to someone)?", options: ["한테", "께", "께서", "으로"], answer: 1, hint: "📌 Hint: You use this when giving something to an elder.", explanation: "'께' is the honorific equivalent of '에게' and '한테', used when the recipient is someone you must show respect to." },
+            { question: "How do you say 'I gave a gift to my grandmother'?", options: ["할머니에게 선물을 줬어요.", "할머니께 선물을 드렸어요.", "할머니를 선물을 줬어요.", "할머니께서 선물을 드렸어요."], answer: 1, hint: "📌 Hint: Use the honorific particle '께' and the honorific verb for '주다' (to give), which is '드리다'.", explanation: "'할머니께 선물을 드렸어요' is the correct honorific sentence." },
+            { question: "A friend asks what you did yesterday. How do you say 'I just rested at home'?", options: ["그냥 집에서 쉬었어요.", "집에서만 쉬었어요.", "집에서 쉬고 싶어요.", "집에서 쉴 거예요."], answer: 0, hint: "📌 Hint: '그냥' means 'just' or 'simply'.", explanation: "'그냥 집에서 쉬었어요' is a natural way to say 'I just rested at home'." },
+            { question: "You are at a store. How do you ask 'Do you have a bigger one?'?", options: ["더 큰 거 있어요?", "더 작은 거 있어요?", "이거 얼마예요?", "이거 주세요."], answer: 0, hint: "📌 Hint: '더' means 'more', and '크다' means 'to be big'.", explanation: "'더 큰 거 있어요?' is the correct phrase. '큰' is '크다' modifying '거' (thing)." },
+            { question: "How do you say 'My friend wants to watch a movie'?", options: ["친구가 영화를 보고 싶어요.", "저는 영화를 보고 싶어해요.", "친구가 영화를 보고 싶어해요.", "친구가 영화를 볼 거예요."], answer: 2, hint: "📌 Hint: To describe a third person's desire, you must use '-고 싶어하다'.", explanation: "'보고 싶어해요' is correct because you are talking about your friend's (a third person's) desire, not your own." },
+            { question: "What is the difference between '안' and '못' for negation?", options: ["They are the same.", "'안' means can't, '못' means don't.", "'안' means don't (by choice), '못' means can't (due to inability).", "'못' is more formal than '안'."], answer: 2, hint: "📌 Hint: If you don't eat kimchi because you dislike it, you say '김치를 안 먹어요'. If you can't eat it because it's too spicy, you say '김치를 못 먹어요'.", explanation: "'안' expresses a lack of will or intention (don't), while '못' expresses a lack of ability or permission (can't)." },
+            { question: "Choose the correct negation: 'I can't go to the party because I'm sick.'", options: ["아파서 파티에 안 가요.", "아파서 파티에 못 가요.", "아파서 파티에 가지 않아요.", "아파서 파티에 가고 싶지 않아요."], answer: 1, hint: "📌 Hint: Being sick creates an inability to go.", explanation: "'못 가요' is correct because the sickness prevents you from going, indicating an inability." },
+            { question: "How do you ask 'What kind of movie shall we watch?'", options: ["무슨 영화를 볼까요?", "어떤 영화를 볼까요?", "A and B are both correct", "어느 영화를 볼까요?"], answer: 2, hint: "📌 Hint: Both '무슨' and '어떤' can mean 'what kind of'.", explanation: "Both '무슨' and '어떤' are used to ask 'what kind of' or 'which'. They are often interchangeable in this context." },
+            { question: "You are late. How do you apologize?", options: ["괜찮아요.", "먼저 가세요.", "늦어서 죄송합니다.", "고맙습니다."], answer: 2, hint: "📌 Hint: '늦다' means 'to be late', and '죄송합니다' is a formal apology.", explanation: "'늦어서 죄송합니다' means 'I'm sorry for being late'." },
+            { question: "How do you say 'This bus goes to City Hall'?", options: ["이 버스는 시청에서 가요.", "이 버스는 시청으로 가요.", "이 버스는 시청까지 가요.", "B and C are both correct"], answer: 3, hint: "📌 Hint: '(으)로' can indicate direction, and '까지' means 'to' or 'as far as'.", explanation: "Both are correct. '(으)로' indicates the direction, and '까지' indicates the final destination. Both are natural here." },
+            { question: "What is the honorific form of '아프다' (to be sick)?", options: ["아프세요", "편찮으세요", "아프십니다", "병이 있으세요"], answer: 1, hint: "📌 Hint: This is another special honorific verb.", explanation: "'편찮으시다' (present tense '편찮으세요') is the special honorific verb for '아프다'." },
+            { question: "How do you say 'My grandmother is sick' politely?", options: ["할머니가 아파요.", "할머니께서 아프세요.", "할머니께서 편찮으세요.", "할머니는 편찮아요."], answer: 2, hint: "📌 Hint: Use the honorific subject and the special honorific verb for 'to be sick'.", explanation: "'할머니께서 편찮으세요' is the most appropriate and polite way to say it." },
+            { question: "How do you say 'I can speak a little bit of Korean'?", options: ["한국어를 잘해요.", "한국어를 못해요.", "한국어를 조금 할 수 있어요.", "한국어를 많이 해요."], answer: 2, hint: "📌 Hint: '조금' means 'a little bit', and '-(으)ㄹ 수 있다' means 'can'.", explanation: "'조금 할 수 있어요' means 'I can do it a little bit'." },
+            { question: "You didn't understand what someone said. How do you ask them to repeat?", options: ["다시 한번 말씀해 주세요.", "괜찮아요.", "알겠습니다.", "천천히 말해요."], answer: 0, hint: "📌 Hint: '다시 한번' means 'one more time', and '말씀해 주세요' is a polite way to say 'please speak'.", explanation: "'다시 한번 말씀해 주세요' is a polite request for someone to say something again." },
+            { question: "What is the difference between '-(으)러 가다' and '-(으)려고 가다'?", options: ["They are exactly the same.", "'-(으)러' is for purpose, '-(으)려고' is for intention.", "They are mostly interchangeable, but '-(으)러' is more common.", "'-으려고' cannot be used with '가다'."], answer: 2, hint: "📌 Hint: Both express purpose or intention, but one is much more common with movement verbs like '가다'/'오다'.", explanation: "While both relate to purpose/intention, '-(으)러' is specifically paired with movement verbs like '가다'/'오다' to state the purpose of the movement. '-(으)려고' states a general intention." },
+            { question: "How do you say 'I will try on these clothes'?", options: ["이 옷을 입을 거예요.", "이 옷을 한번 입어 볼게요.", "이 옷을 입고 싶어요.", "이 옷을 입었어요."], answer: 1, hint: "📌 Hint: The grammar '-아/어 보다' means 'to try doing something'.", explanation: "'입어 볼게요' combines '입다' (to wear) with '-어 보다' (to try) and '-(으)ㄹ게요' (I will), meaning 'I'll try it on'." },
+            { question: "How do you offer your seat to an elderly person on the bus?", options: ["여기 앉아요.", "앉으세요.", "여기 앉으세요.", "앉아도 돼요."], answer: 2, hint: "📌 Hint: Be polite ('-세요') and specific ('여기' - here).", explanation: "'여기 앉으세요' is a polite and clear way to offer your seat." },
+            { question: "What does 'N + 같아요' mean?", options: ["I like N", "I have N", "It seems like N / It is like N", "I don't like N"], answer: 2, hint: "📌 Hint: '꿈 같아요' means 'It's like a dream'.", explanation: "The pattern 'N + 같다' means 'to be like N' or 'it seems/looks like N'." },
+            { question: "How do you say 'It looks like it will rain'?", options: ["비가 올 것 같아요.", "비가 온 것 같아요.", "비가 오는 것 같아요.", "비가 와요."], answer: 0, hint: "📌 Hint: For future speculation, use '-(으)ㄹ 것 같다'.", explanation: "'비가 올 것 같아요' combines the future tense modifier '-(으)ㄹ' with '것 같다' to mean 'it seems like it will rain'." },
+            { question: "How do you say 'It seems he is a student'?", options: ["학생인 것 같아요.", "학생일 것 같아요.", "학생이었던 것 같아요.", "학생 같아요."], answer: 3, hint: "📌 Hint: For nouns, you can often just use 'N + 같아요'.", explanation: "'학생 같아요' is the simplest and most common way to say 'He seems like a student'. '학생인 것 같아요' is also correct." },
+            { question: "How do you say 'Please don't do that'?", options: ["하지 마세요.", "안 해요.", "못 해요.", "하지 않아요."], answer: 0, hint: "📌 Hint: The negative command form is '-지 말다'.", explanation: "'-지 마세요' is the polite negative command, meaning 'Please don't do'." },
+            { question: "How do you say 'You must not smoke here'?", options: ["여기에서 담배를 피우지 마세요.", "여기에서 담배를 피우면 안 돼요.", "A and B are both correct.", "여기에서 담배를 안 피워요."], answer: 2, hint: "📌 Hint: '-지 마세요' is a request. '-(으)면 안 되다' means 'one must not' or 'it is not allowed'.", explanation: "Both are correct. '-지 마세요' is a direct prohibition. '-(으)면 안 돼요' explains that the action is not allowed." },
+            { question: "What is the honorific of '주다' (to give)?", options: ["주시다", "드리다", "받다", "드리세요"], answer: 1, hint: "📌 Hint: You use this when giving something to a person of higher status.", explanation: "'드리다' is the special honorific (humble) verb for '주다'." },
+            { question: "How do you say 'I will give this book to my professor'?", options: ["교수님께 이 책을 줄 거예요.", "교수님에게 이 책을 드릴 거예요.", "교수님께 이 책을 드릴 거예요.", "교수님께서 이 책을 줄 거예요."], answer: 2, hint: "📌 Hint: Use both the honorific particle '께' and the honorific verb '드리다'.", explanation: "'교수님께 이 책을 드릴 거예요' is the fully correct and polite sentence." },
+            { question: "What does '-(으)ㄴ/는/(으)ㄹ 것 같다' express?", options: ["Certainty", "A direct quote", "A guess or speculation", "A past habit"], answer: 2, hint: "📌 Hint: It's used when you are not 100% sure about something.", explanation: "This grammar pattern is used to express supposition, guessing, or one's opinion softly." },
+            { question: "How do you say 'It seems the food was spicy'?", options: ["음식이 매울 것 같아요.", "음식이 매운 것 같아요.", "음식이 매웠던 것 같아요.", "음식이 맵은 것 같아요."], answer: 2, hint: "📌 Hint: For past speculation about an adjective, use 'Adjective + -았던/었던 것 같다'.", explanation: "'매웠던 것 같아요' is correct for speculating about a past state." },
+            { question: "How do you say 'My father's name is...' politely?", options: ["아버지 이름은... 입니다.", "아버지의 성함은... 입니다.", "아버지 성함은... 입니다.", "B and C are both correct."], answer: 3, hint: "📌 Hint: The honorific word for '이름' (name) is '성함'.", explanation: "Both B and C are correct. '성함' is the honorific for 'name'. '의' is often omitted." },
+            { question: "How do you say 'Please speak slowly'?", options: ["천천히 말씀하세요.", "천천히 말씀해 주세요.", "A and B are both correct.", "빨리 말씀해 주세요."], answer: 2, hint: "📌 Hint: '천천히' means 'slowly'. '-아/어 주세요' is a polite request.", explanation: "Both are correct and polite ways to ask someone to speak slowly. '-해 주세요' is very common for requests." },
+            { question: "What is the difference between '-(으)ㄹ게요' and '-(으)ㄹ 거예요'?", options: ["No difference.", "'-(으)ㄹ게요' shows the speaker's intention is related to the listener, '-(으)ㄹ 거예요' is a neutral statement.", "'-(으)ㄹ게요' is less formal.", "'-(으)ㄹ 거예요' can't be used in questions."], answer: 1, hint: "📌 Hint: If someone says 'It's cold', you might respond '제가 창문을 닫을게요' (I'll close the window).", explanation: "'-(으)ㄹ게요' expresses a promise or intention that is a reaction to what the listener has said or the situation. It cannot be used for a general, unrelated future plan." },
+            { question: "Someone asks '주말에 뭐 했어요?'. You met a friend. What do you say?", options: ["친구를 만날 거예요.", "친구를 만나요.", "친구를 만났어요.", "친구를 만나고 싶어요."], answer: 2, hint: "📌 Hint: The question is in the past tense ('했어요?').", explanation: "The answer should also be in the past tense. '만났어요' is the past tense of '만나다'." },
+            { question: "How do you say 'It's okay if you don't come tomorrow'?", options: ["내일 안 와도 괜찮아요.", "내일 못 와도 괜찮아요.", "내일 오지 않아도 돼요.", "A and C are both correct."], answer: 3, hint: "📌 Hint: The grammar '-아/어'도 괜찮다/되다' means 'it's okay to...' or 'you don't have to...'.", explanation: "Both are correct. '안 와도 괜찮아요' and '오지 않아도 돼요' mean 'It's okay even if you don't come'." },
+            { question: "What does 'N + 전에' mean?", options: ["After N", "Before N", "During N", "Because of N"], answer: 1, hint: "📌 Hint: '수업 전에' means 'before class'.", explanation: "'전에' is used after a noun or a verb form to mean 'before'." },
+            { question: "How do you say 'I wash my hands before eating a meal'?", options: ["밥을 먹은 후에 손을 씻어요.", "밥을 먹기 전에 손을 씻어요.", "밥을 먹으면서 손을 씻어요.", "밥을 먹고 손을 씻어요."], answer: 1, hint: "📌 Hint: To use a verb before '전에', you must change it to the noun form '-기'.", explanation: "'먹기 전에' means 'before eating'. The '-기' nominalizer is required to use a verb with '전에'." },
+            { question: "What does 'N + 후에' mean?", options: ["After N", "Before N", "During N", "Instead of N"], answer: 0, hint: "📌 Hint: This is the opposite of '전에'.", explanation: "'후에' is used after a noun or a verb form to mean 'after'." },
+            { question: "How do you say 'I will watch a movie after class ends'?", options: ["수업이 끝나기 전에 영화를 볼 거예요.", "수업이 끝나면서 영화를 볼 거예요.", "수업이 끝난 후에 영화를 볼 거예요.", "수업이 끝나서 영화를 볼 거예요."], answer: 2, hint: "📌 Hint: To use a verb before '후에', you must use the '-(으)ㄴ' form.", explanation: "'끝난 후에' means 'after it ends'. The past tense modifier '-(으)ㄴ' is used with '후에'." },
+            { question: "How do you ask 'How long does it take?'", options: ["얼마나 멀어요?", "얼마나 걸려요?", "얼마나 있어요?", "언제 도착해요?"], answer: 1, hint: "📌 Hint: '걸리다' is the verb for 'to take (time)'.", explanation: "'얼마나 걸려요?' is the standard phrase for asking 'How long does it take?'." },
+            { question: "How do you answer 'It takes about 30 minutes'?", options: ["30분쯤 걸려요.", "30분 있어요.", "30분이에요.", "30분부터예요."], answer: 0, hint: "📌 Hint: '쯤' means 'about' or 'approximately'.", explanation: "'30분쯤 걸려요' is the correct way to say 'It takes about 30 minutes'." },
+            { question: "How do you say 'I can't decide'?", options: ["결정할 수 없어요.", "결정 못 해요.", "A and B are both correct.", "결정 안 해요."], answer: 2, hint: "📌 Hint: '-(으)ㄹ 수 없다' and '못' both express inability.", explanation: "Both are correct. '결정할 수 없어요' and '결정 못 해요' both mean 'I can't decide'. '못 해요' is more common in speech." },
+            { question: "You see a friend studying hard. How do you say 'You must be tired'?", options: ["피곤할 거예요.", "피곤하겠어요.", "피곤했어요.", "피곤한 것 같아요."], answer: 1, hint: "📌 Hint: The grammar '-겠-' is used to express a strong assumption based on evidence.", explanation: "'피곤하겠어요' is the most natural way to express a strong guess based on what you are seeing. It translates to 'You must be tired'." },
+            { question: "How do you say 'The food looks delicious'?", options: ["음식이 맛있겠어요.", "음식이 맛있어요.", "음식이 맛있을 거예요.", "음식이 맛있는 것 같아요."], answer: 0, hint: "📌 Hint: Use '-겠-' to express an assumption based on appearance.", explanation: "'맛있겠어요' is a very common phrase that means 'That looks delicious', based on seeing the food." },
+            { question: "What is the honorific for '집' (house)?", options: ["궁", "댁", "방", "성"], answer: 1, hint: "📌 Hint: You would ask an elder '댁이 어디세요?' (Where is your home?).", explanation: "'댁' is the honorific noun for '집'." },
+            { question: "What is the honorific for '나이' (age)?", options: ["살", "세", "연세", "생신"], answer: 2, hint: "📌 Hint: You would ask '연세가 어떻게 되세요?'", explanation: "'연세' is the honorific noun for '나이'." },
+            { question: "What is the honorific for '생일' (birthday)?", options: ["생신", "생일 파티", "연세", "나이"], answer: 0, hint: "📌 Hint: '할머니 생신' (Grandma's birthday).", explanation: "'생신' is the honorific noun for '생일'." },
+            { question: "How do you say 'Happy birthday' to your grandfather politely?", options: ["할아버지, 생일 축하해요.", "할아버지, 생신 축하드려요.", "할아버지, 생일 축하드립니다.", "할아버지, 생신 축하해요."], answer: 1, hint: "📌 Hint: Use the honorific noun '생신' and the humble verb '드리다' for '축하하다'.", explanation: "'생신 축하드려요' is the correct and polite way. You use the honorific noun '생신' and the humble form of '축하하다', which is '축하드리다'." },
+            { question: "How do you say 'I have been to Jeju Island'?", options: ["제주도에 갔어요.", "제주도에 가 봤어요.", "제주도에 갈 거예요.", "제주도에 가고 싶어요."], answer: 1, hint: "📌 Hint: The grammar '-아/어 보다' is used to express experience.", explanation: "'가 봤어요' is the past tense of '가 보다' (to try going), and it's used to mean you have the experience of having been somewhere." },
+            { question: "How do you say 'I have tried eating kimchi'?", options: ["김치를 먹었어요.", "김치를 먹고 싶어요.", "김치를 먹어 봤어요.", "김치를 먹을 거예요."], answer: 2, hint: "📌 Hint: Use '-아/어 보다' to talk about experience.", explanation: "'먹어 봤어요' is the past tense of '먹어 보다' (to try eating), used to express the experience of having eaten something." },
+            { question: "How do you say 'You don't have to do your homework now'?", options: ["지금 숙제하면 안 돼요.", "지금 숙제하지 마세요.", "지금 숙제 안 해도 돼요.", "지금 숙제 못 해요."], answer: 2, hint: "📌 Hint: Use the '-지 않아도 되다' grammar.", explanation: "'안 해도 돼요' or '하지 않아도 돼요' means 'you don't have to do it'." }
+        ];
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const endScreen = document.getElementById('end-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const questionCounter = document.getElementById('question-counter');
+        const progressBar = document.getElementById('progress-bar');
+        const questionText = document.getElementById('question-text');
+        const questionHint = document.getElementById('question-hint');
+        const optionsContainer = document.getElementById('options-container');
+        const finalScore = document.getElementById('final-score');
+        const scorePercentage = document.getElementById('score-percentage');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const modalNextBtn = document.getElementById('modal-next-btn');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let shuffledQuestions = [];
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
+            startScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            resetState();
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+            const questionNumber = currentQuestionIndex + 1;
+            progressBar.style.width = `${(questionNumber / shuffledQuestions.length) * 100}%`;
+            questionCounter.innerText = `Question ${questionNumber} of ${shuffledQuestions.length}`;
+            questionText.innerText = currentQuestion.question;
+            questionHint.innerHTML = currentQuestion.hint;
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.innerHTML = `<span class="font-sans mr-3 text-base text-indigo-500">${String.fromCharCode(65 + index)}</span> ${option}`;
+                button.classList.add('quiz-option', 'w-full', 'text-left', 'p-4', 'border-2', 'border-gray-200', 'rounded-lg', 'text-lg', 'text-gray-800', 'hover:border-indigo-400', 'transition');
+                button.dataset.index = index;
+                button.addEventListener('click', selectAnswer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            while (optionsContainer.firstChild) {
+                optionsContainer.removeChild(optionsContainer.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedIndex = parseInt(e.currentTarget.dataset.index);
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+            const isCorrect = selectedIndex === currentQuestion.answer;
+            Array.from(optionsContainer.children).forEach(button => {
+                button.classList.add('disabled');
+            });
+            if (isCorrect) {
+                score++;
+                showFeedback(true, `<strong>Correct!</strong><br><br>${currentQuestion.explanation}`);
+            } else {
+                const incorrectAnswerText = currentQuestion.options[selectedIndex];
+                const correctAnswerText = currentQuestion.options[currentQuestion.answer];
+                const detailedExplanation = `Your answer, '${incorrectAnswerText}', was incorrect. The correct answer is '<strong>${correctAnswerText}</strong>'.<br><br><strong>Why:</strong> ${currentQuestion.explanation}`;
+                showFeedback(false, detailedExplanation);
+            }
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            if (isCorrect) {
+                feedbackTitle.innerText = "Correct! (정답!)";
+                feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
+                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+            } else {
+                feedbackTitle.innerText = "Incorrect (오답)";
+                feedbackTitle.className = "text-2xl font-bold mb-2 text-red-600";
+                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+            }
+            feedbackText.innerHTML = explanation;
+            feedbackModal.classList.remove('hidden');
+            setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
+        }
+
+        function handleNextQuestion() {
+            feedbackModal.classList.add('opacity-0');
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+                currentQuestionIndex++;
+                if (currentQuestionIndex < shuffledQuestions.length) {
+                    showQuestion();
+                } else {
+                    showEndScreen();
+                }
+            }, 300);
+        }
+
+        function showEndScreen() {
+            quizScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            const percentage = Math.round((score / shuffledQuestions.length) * 100);
+            finalScore.innerText = `${score} / ${shuffledQuestions.length}`;
+            scorePercentage.innerText = `${percentage}% Correct`;
+        }
+
+        startBtn.addEventListener('click', startQuiz);
+        modalNextBtn.addEventListener('click', handleNextQuestion);
+        restartBtn.addEventListener('click', () => {
+            endScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        });
+
+        quizScreen.classList.add('hidden');
+        endScreen.classList.add('hidden');
+        feedbackModal.classList.add('hidden', 'opacity-0');
+    </script>
+</body>
+</html>

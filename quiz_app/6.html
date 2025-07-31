@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Korean Review - Set 6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .quiz-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .disabled { pointer-events: none; opacity: 0.7; }
+        #progress-bar, #feedback-modal { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-xl">
+        <div id="quiz-screen" class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 hidden">
+            <div id="quiz-header" class="mb-6">
+                <p class="text-sm font-semibold text-indigo-600">Set 6</p>
+                <p id="question-counter" class="text-sm font-semibold text-indigo-600">Question 1 of 50</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                    <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 2%"></div>
+                </div>
+            </div>
+            <div id="question-container">
+                <p id="question-text" class="text-xl md:text-2xl font-bold text-gray-900 mb-4 min-h-[5rem]"></p>
+                <p id="question-hint" class="text-base text-gray-500 mb-6 p-3 bg-gray-50 rounded-lg"></p>
+                <div id="options-container" class="space-y-3"></div>
+            </div>
+        </div>
+        <div id="start-screen" class="text-center">
+            <h1 class="text-4xl md:text-5xl font-black text-gray-800">Final Korean Review</h1>
+            <p class="text-gray-600 mt-4 text-lg">Set 6: Comprehensive Review B</p>
+            <button id="start-btn" class="w-full max-w-sm mx-auto mt-8 bg-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-700 transition duration-300 text-xl shadow-lg">Start Quiz (50 Questions)</button>
+        </div>
+        <div id="end-screen" class="hidden text-center bg-white rounded-2xl shadow-2xl p-8 md:p-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Set 6 Complete!</h1>
+            <p class="text-gray-600 mt-2 text-xl">수고하셨습니다!</p>
+            <div class="my-8">
+                <p class="text-lg text-gray-700">Your Score:</p>
+                <p id="final-score" class="text-6xl font-black text-indigo-600 my-1"></p>
+                <p id="score-percentage" class="text-2xl font-semibold text-gray-500"></p>
+            </div>
+            <button id="restart-btn" class="w-full max-w-sm mx-auto bg-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-700 transition">Restart Set 6</button>
+        </div>
+    </div>
+    <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 text-center">
+            <h2 id="feedback-title" class="text-2xl font-bold mb-2"></h2>
+            <p id="feedback-text" class="text-gray-700 text-lg mb-6"></p>
+            <button id="modal-next-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
+        </div>
+    </div>
+    <script>
+        const quizData = [
+            // Add 50 new questions for Set 6 here
+            { question: "How do you say 'from Seoul to Busan'?", options: ["서울에서 부산까지", "서울부터 부산으로", "서울하고 부산", "서울에서 부산으로"], answer: 0, hint: "📌 Hint: The structure 'A에서 B까지' means 'from A to B'.", explanation: "'서울에서 부산까지' is the correct pattern for 'from A to B'." },
+            { question: "What does 'V-아/어 본 적이 있다' mean?", options: ["To plan to do V", "To have the experience of doing V", "To be good at doing V", "To be in the middle of doing V"], answer: 1, hint: "📌 Hint: This is another way to talk about past experiences, similar to '-아/어 보다'.", explanation: "This grammar pattern specifically means 'to have the experience of having done V'." },
+            { question: "How do you say 'I have never seen a celebrity'?", options: ["연예인을 본 적이 없어요.", "연예인을 안 봤어요.", "연예인을 못 봤어요.", "연예인을 보지 않았어요."], answer: 0, hint: "📌 Hint: Use the negative form, 'V-아/어 본 적이 없다'.", explanation: "'본 적이 없어요' means 'to have never had the experience of seeing'." },
+            { question: "How do you say 'Please take off your shoes'?", options: ["신발을 신으세요.", "신발을 벗어 주세요.", "신발을 입으세요.", "신발을 잃어버렸어요."], answer: 1, hint: "📌 Hint: '벗다' means 'to take off' (for clothes, shoes).", explanation: "'벗어 주세요' is a polite request to take off shoes." },
+            { question: "What is the meaning of 'N 때문에'?", options: ["Because of N (usually with a negative result)", "For the sake of N", "Like N", "Instead of N"], answer: 0, hint: "📌 Hint: '너 때문에 늦었어' means 'I'm late because of you'.", explanation: "'때문에' means 'because of' and is often used when the result is negative." },
+            { question: "How do you say 'I couldn't go because of the snow'?", options: ["눈이 와서 못 갔어요.", "눈 때문에 못 갔어요.", "A and B are both correct", "눈이 오면 못 갔어요."], answer: 2, hint: "📌 Hint: '-(아/어)서' and '때문에' can both state a reason.", explanation: "Both are correct. '눈이 와서' is a neutral reason. '눈 때문에' can carry a slightly negative nuance, which fits the context of not being able to go." },
+            { question: "How do you say 'Please be quiet in the library'?", options: ["도서관에서 조용히 하세요.", "도서관에서 조용히 해 주세요.", "A and B are both correct", "도서관이 조용해요."], answer: 2, hint: "📌 Hint: '조용히 하다' means 'to be quiet'. Both '-으세요' and '-아/어 주세요' are polite command forms.", explanation: "Both are correct and polite ways to ask someone to be quiet." },
+            { question: "What is the meaning of 'A/V-(으)ㄴ/는데'?", options: ["It connects two contrasting ideas, like 'but'.", "It provides background information for the main clause.", "It lists two actions sequentially.", "A and B are both correct."], answer: 3, hint: "📌 Hint: '배고픈데 뭐 먹을까요?' (I'm hungry, so what should we eat?). '어제 샀는데 벌써 고장났어요.' (I bought it yesterday, but it's already broken).", explanation: "This is a very versatile connector. It can mean 'but' (contrast) or provide the situation/background for the main clause." },
+            { question: "How do you say 'I have an exam tomorrow, so I have to study'?", options: ["내일 시험이 있는데 공부해야 해요.", "내일 시험이 있어서 공부해야 해요.", "A and B are both correct", "내일 시험이 있지만 공부해야 해요."], answer: 2, hint: "📌 Hint: Both '-(으)ㄴ데' and '-(아/어)서' can provide the reason/background.", explanation: "Both are correct. '있는데' provides the background situation. '있어서' provides a direct reason." },
+            { question: "How do you say 'I called my friend, but they didn't answer'?", options: ["친구한테 전화했는데 안 받았어요.", "친구한테 전화해서 안 받았어요.", "친구한테 전화하고 안 받았어요.", "친구한테 전화하면 안 받았어요."], answer: 0, hint: "📌 Hint: Use '-(으)ㄴ데' to show a contrast or unexpected result.", explanation: "'전화했는데' is perfect here, as it sets up the situation and contrasts it with the unexpected result of not getting an answer." },
+            { question: "What does 'V-(으)려면' mean?", options: ["Because you do V", "If you intend to do V / If you want to do V", "While you do V", "After you do V"], answer: 1, hint: "📌 Hint: It's a combination of '-(으)려고 하다' (to intend to) and '-(으)면' (if).", explanation: "'-(으)려면' is a conditional that means 'if you intend/want to...'" },
+            { question: "How do you say 'If you want to be good at Korean, you have to study every day'?", options: ["한국어를 잘하려면 매일 공부해야 해요.", "한국어를 잘해서 매일 공부해야 해요.", "한국어를 잘하지만 매일 공부해야 해요.", "한국어를 잘하고 매EIL 공부해야 해요."], answer: 0, hint: "📌 Hint: Use the '-(으)려면' grammar.", explanation: "'잘하려면' means 'if you want to do it well'." },
+            { question: "How do you say 'The color is pretty'?", options: ["색깔이 예뻐요.", "성격이 예뻐요.", "얼굴이 예뻐요.", "모양이 예뻐요."], answer: 0, hint: "📌 Hint: '색깔' means 'color'.", explanation: "'색깔이 예뻐요' means 'The color is pretty'." },
+            { question: "What does 'A/V-아/어도' mean?", options: ["Even if A/V", "Because A/V", "If A/V", "When A/V"], answer: 0, hint: "📌 Hint: '바빠도 아침은 먹어야 해요' (Even if you're busy, you have to eat breakfast).", explanation: "The '-아/어도' grammar means 'even if' or 'even though'." },
+            { question: "How do you say 'Even if it's expensive, I want to buy it'?", options: ["비싸면 사고 싶어요.", "비싸서 사고 싶어요.", "비싸도 사고 싶어요.", "비싸지만 사고 싶어요."], answer: 2, hint: "📌 Hint: Use the '-아/어도' grammar.", explanation: "'비싸도' means 'even if it's expensive'." },
+            { question: "How do you say 'I'm not as good at cooking as my mom'?", options: ["저는 어머니보다 요리를 잘해요.", "저는 어머니하고 요리를 잘해요.", "저는 어머니만큼 요리를 잘하지 못해요.", "저는 어머니처럼 요리를 잘해요."], answer: 2, hint: "📌 Hint: 'N만큼' means 'as much as N'. Combine it with a negative.", explanation: "'어머니만큼 잘하지 못해요' means 'I can't do it as well as my mother'." },
+            { question: "What does 'V-자마자' mean?", options: ["As soon as V", "Because of V", "In order to V", "While V"], answer: 0, hint: "📌 Hint: '집에 오자마자 잤어요' (I slept as soon as I came home).", explanation: "The 'V-자마자' grammar expresses an action that happens immediately after another action." },
+            { question: "How do you say 'I'll call you as soon as I finish the meeting'?", options: ["회의가 끝나면 전화할게요.", "회의가 끝나자마자 전화할게요.", "회의가 끝나서 전화할게요.", "회의가 끝났지만 전화할게요."], answer: 1, hint: "📌 Hint: Use '-자마자' for immediacy.", explanation: "'끝나자마자' means 'as soon as it finishes'." },
+            { question: "How do you say 'I almost missed the train'?", options: ["기차를 놓칠 뻔했어요.", "기차를 놓쳤어요.", "기차를 안 놓쳤어요.", "기차를 놓치고 싶어요."], answer: 0, hint: "📌 Hint: The grammar '-(으)ㄹ 뻔했다' means 'to have almost done something'.", explanation: "'놓칠 뻔했어요' means 'I almost missed it' (but didn't)." },
+            { question: "How do you say 'I almost fell down'?", options: ["넘어졌어요.", "넘어질 거예요.", "넘어질 뻔했어요.", "안 넘어졌어요."], answer: 2, hint: "📌 Hint: Use '-(으)ㄹ 뻔했다'.", explanation: "'넘어질 뻔했어요' means 'I almost fell'." },
+            { question: "What does 'A/V-(으)ㄴ/는 편이다' mean?", options: ["To decide to do A/V", "To tend to be A/V; on the A/V side", "To have experience of A/V", "To be in the middle of A/V"], answer: 1, hint: "📌 Hint: '저는 키가 큰 편이에요' (I'm on the tall side).", explanation: "This grammar is used to state that something tends to be a certain way, rather than stating it as an absolute fact." },
+            { question: "How do you say 'I tend to eat a lot'?", options: ["많이 먹는 편이에요.", "많이 먹기로 했어요.", "많이 먹어 봤어요.", "많이 먹는 중이에요."], answer: 0, hint: "📌 Hint: Use the '-(으)ㄴ/는 편이다' grammar.", explanation: "'먹는 편이에요' means 'I'm on the side of eating a lot' or 'I tend to eat a lot'." },
+            { question: "How do you say 'This restaurant is on the expensive side'?", options: ["이 식당은 비싼 편이에요.", "이 식당은 아주 비싸요.", "이 식당은 비싸졌어요.", "이 식당은 비싼 것 같아요."], answer: 0, hint: "📌 Hint: Use '-(으)ㄴ/는 편이다'.", explanation: "'비싼 편이에요' means 'it tends to be expensive' or 'it's on the pricey side'." },
+            { question: "What does 'A/V-잖아요' mean?", options: ["It's a question.", "It states a reason the listener should already know.", "It's a formal statement.", "It's a strong command."], answer: 1, hint: "📌 Hint: '어제 말했잖아요!' (I told you yesterday, didn't I?!).", explanation: "'-잖아요' is used to remind the listener of a fact they should already know, similar to saying '...you know.' or 'As you know...'" },
+            { question: "Your friend forgot their umbrella. You say 'I told you it would rain!' How do you say that?", options: ["비가 온다고 했잖아요!", "비가 올까요?", "비가 왔어요.", "비가 오네요."], answer: 0, hint: "📌 Hint: Use '-잖아요' to remind them.", explanation: "'온다고 했잖아요!' means 'I said it would rain, you know!'." },
+            { question: "How do you say 'Of course it's difficult. It's the final exam!'?", options: ["당연히 어렵지요. 기말시험이잖아요.", "어려울 거예요. 기말시험이에요.", "어려웠어요. 기말시험이었어요.", "어려운데 기말시험이에요."], answer: 0, hint: "📌 Hint: Use '-잖아요' to state the obvious reason.", explanation: "'기말시험이잖아요' provides the reason that the listener should already be aware of." },
+            { question: "What does 'A/V-군요' mean?", options: ["It's similar to '-네요', expressing realization, but can feel more formal.", "It's a question about the past.", "It's a negative statement.", "It connects two clauses."], answer: 0, hint: "📌 Hint: It's the written or slightly more formal equivalent of '-네요'.", explanation: "'-군요' (for adjectives/past tense) and '-는군요' (for present tense action verbs) express realization or surprise, just like '-네요'." },
+            { question: "You learn that your friend is from Canada. How do you express your realization?", options: ["아, 캐나다에서 왔군요.", "캐나다에서 왔어요?", "캐나다에서 왔네요.", "A and C are correct"], answer: 3, hint: "📌 Hint: Both '-군요' and '-네요' work to show you've just learned this information.", explanation: "Both are correct and natural ways to express your realization." },
+            { question: "How do you say 'I have no choice but to go'?", options: ["갈 수밖에 없어요.", "가면 안 돼요.", "안 가도 돼요.", "가고 싶지 않아요."], answer: 0, hint: "📌 Hint: The grammar 'V-(으)ㄹ 수밖에 없다' means 'there is no choice but to V'.", explanation: "'갈 수밖에 없어요' means 'There is no other way but to go'." },
+            { question: "How do you say 'I had no choice but to buy it because it was on sale'?", options: ["세일해서 살 수밖에 없었어요.", "세일해서 사고 싶었어요.", "세일해서 안 샀어요.", "세일했지만 안 샀어요."], answer: 0, hint: "📌 Hint: Use '-(으)ㄹ 수밖에 없었다'.", explanation: "'살 수밖에 없었어요' means 'I had no choice but to buy it'." },
+            { question: "What does 'V-는 길에' mean?", options: ["Because I was doing V", "On the way to do V / While coming/going", "After doing V", "If I do V"], answer: 1, hint: "📌 Hint: '집에 오는 길에 빵을 샀어요' (I bought bread on my way home).", explanation: "'V-는 길에' means 'on one's way' and is used with movement verbs like '가다' and '오다'." },
+            { question: "How do you say 'I stopped by the bank on my way to work'?", options: ["회사에 가는 길에 은행에 들렀어요.", "회사에 가서 은행에 들렀어요.", "회사에 가려고 은행에 들렀어요.", "회사에 가자마자 은행에 들렀어요."], answer: 0, hint: "📌 Hint: Use '-는 길에'.", explanation: "'가는 길에' means 'on the way to go'." },
+            { question: "How do you say 'It's so windy that I can't open my eyes'?", options: ["바람이 너무 불어서 눈을 뜰 수 없어요.", "바람이 불지만 눈을 뜰 수 없어요.", "바람이 불고 눈을 뜰 수 없어요.", "바람이 불면 눈을 뜰 수 없어요."], answer: 0, hint: "📌 Hint: Use '-(아/어)서' for the reason.", explanation: "'불어서' (because it blows) gives the reason for the inability to open one's eyes." },
+            { question: "What does 'A/V-(으)ㄹ 정도로' mean?", options: ["To the extent that...; so... that...", "Because A/V", "If A/V", "Even if A/V"], answer: 0, hint: "📌 Hint: '죽을 정도로 아팠어요' (I was so sick that I could have died).", explanation: "This grammar indicates the degree or extent of the first clause, showing it's the reason for the second." },
+            { question: "How do you say 'I was so busy that I didn't even have time to eat'?", options: ["밥 먹을 시간도 없을 정도로 바빴어요.", "밥 먹을 시간이 없어서 바빴어요.", "밥 먹을 시간이 없지만 바빴어요.", "밥 먹을 시간이 없으면 바빴어요."], answer: 0, hint: "📌 Hint: Use '-(으)ㄹ 정도로'.", explanation: "'없을 정도로' means 'to the extent that there wasn't time'." },
+            { question: "How do you say 'Instead of coffee, please give me juice'?", options: ["커피 말고 주스 주세요.", "커피하고 주스 주세요.", "커피나 주스 주세요.", "커피만 주세요."], answer: 0, hint: "📌 Hint: 'N 말고' means 'not N, but...'.", explanation: "'커피 말고' means 'not coffee', and is used to reject one option in favor of another." },
+            { question: "How do you say 'Let's meet tomorrow instead of today'?", options: ["오늘 말고 내일 만나요.", "오늘하고 내일 만나요.", "오늘이나 내일 만나요.", "오늘도 내일도 만나요."], answer: 0, hint: "📌 Hint: Use 'N 말고'.", explanation: "'오늘 말고 내일' means 'not today, but tomorrow'." },
+            { question: "What does 'A/V-(으)ㄴ/는 대신에' mean?", options: ["Instead of A/V", "Because of A/V", "In order to A/V", "As soon as A/V"], answer: 0, hint: "📌 Hint: '제가 요리하는 대신에 설거지를 하세요' (Instead of me cooking, you do the dishes).", explanation: "'-(으)ㄴ/는 대신에' means 'instead of' or 'in return for'." },
+            { question: "How do you say 'I'll help you, so in return, please buy me coffee'?", options: ["제가 도와주는 대신에 커피를 사 주세요.", "제가 도와줘서 커피를 사 주세요.", "제가 도와주면 커피를 사 주세요.", "제가 도와주고 커피를 사 주세요."], answer: 0, hint: "📌 Hint: Use '-는 대신에'.", explanation: "'도와주는 대신에' means 'in return for me helping'." },
+            { question: "How do you say 'This is the book that I read yesterday'?", options: ["이것은 어제 읽는 책이에요.", "이것은 어제 읽은 책이에요.", "이것은 어제 읽을 책이에요.", "이것은 어제 읽던 책이에요."], answer: 1, hint: "📌 Hint: To modify a noun with a past action verb, use the '-(으)ㄴ' ending.", explanation: "'읽은' is the past tense modifier form of '읽다', correctly describing the book." },
+            { question: "How do you say 'The person who is singing now is my friend'?", options: ["지금 노래하는 사람이 제 친구예요.", "지금 노래한 사람이 제 친구예요.", "지금 노래할 사람이 제 친구예요.", "지금 노래하던 사람이 제 친구예요."], answer: 0, hint: "📌 Hint: To modify a noun with a present action verb, use the '-는' ending.", explanation: "'노래하는' is the present tense modifier form of '노래하다'." },
+            { question: "How do you say 'The place I will go tomorrow is the library'?", options: ["내일 가는 장소는 도서관이에요.", "내일 갔던 장소는 도서관이에요.", "내일 갈 장소는 도서관이에요.", "내일 가던 장소는 도서관이에요."], answer: 2, hint: "📌 Hint: To modify a noun with a future action verb, use the '-(으)ㄹ' ending.", explanation: "'갈' is the future tense modifier form of '가다'." },
+            { question: "How do you say 'The food is neither spicy nor salty'?", options: ["음식이 맵고 짜지 않아요.", "음식이 맵거나 짜지 않아요.", "음식이 맵지도 않고 짜지도 않아요.", "음식이 맵지만 짜지 않아요."], answer: 2, hint: "📌 Hint: The structure for 'neither A nor B' is 'A-지도 않고 B-지도 않다'.", explanation: "'맵지도 않고 짜지도 않아요' is the correct grammar for 'is neither spicy nor salty'." },
+            { question: "What does 'A/V-아/어 보이다' mean?", options: ["To try A/V", "To seem/look A/V", "To have to be A/V", "To become A/V"], answer: 1, hint: "📌 Hint: '피곤해 보여요' means 'You look tired'.", explanation: "This grammar is attached to adjectives or verbs to mean 'it looks/seems...'" },
+            { question: "How do you say 'You look happy today'?", options: ["오늘 행복해 보여요.", "오늘 행복해요.", "오늘 행복했어요.", "오늘 행복하겠어요."], answer: 0, hint: "📌 Hint: Use '-아/어 보이다'.", explanation: "'행복해 보여요' means 'You look happy'." },
+            { question: "How do you say 'It's been a year since I came to Korea'?", options: ["한국에 온 지 1년이 되었어요.", "한국에 올 때 1년이 되었어요.", "한국에 오기 전에 1년이 되었어요.", "한국에 온 후에 1년이 되었어요."], answer: 0, hint: "📌 Hint: The grammar 'V-(으)ㄴ 지 [time]이/가 되다' means 'it has been [time] since V'.", explanation: "'온 지 1년이 되었어요' is the correct structure." },
+            { question: "How do you say 'It's been a week since I quit smoking'?", options: ["담배를 끊은 지 일주일이 되었어요.", "담배를 끊고 일주일이 되었어요.", "담배를 끊으면 일주일이 되었어요.", "담배를 끊어야 일주일이 되었어요."], answer: 0, hint: "📌 Hint: Use '-(으)ㄴ 지... 되다'.", explanation: "'끊은 지 일주일이 되었어요' means 'It has been one week since I quit'." },
+            { question: "What does 'V-는 동안' mean?", options: ["Because of V", "After V", "While / During the time that V", "Instead of V"], answer: 2, hint: "📌 Hint: '여행하는 동안 사진을 많이 찍었어요' (I took a lot of pictures while traveling).", explanation: "'V-는 동안' means 'while' or 'during the period of time' that an action is taking place." },
+            { question: "How do you say 'Please wait a moment while I'm on the phone'?", options: ["제가 전화하는 동안 잠깐만 기다려 주세요.", "제가 전화하니까 잠깐만 기다려 주세요.", "제가 전화하면 잠깐만 기다려 주세요.", "제가 전화하고 잠깐만 기다려 주세요."], answer: 0, hint: "📌 Hint: Use '-는 동안'.", explanation: "'전화하는 동안' means 'while I am on the phone'." },
+            { question: "How do you say 'It depends on the weather'?", options: ["날씨에 따라 달라요.", "날씨 같아요.", "날씨 때문에 같아요.", "날씨하고 달라요."], answer: 0, hint: "📌 Hint: The grammar 'N에 따라 다르다' means 'it depends on N'.", explanation: "'날씨에 따라 달라요' is the correct set phrase." }
+        ];
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const endScreen = document.getElementById('end-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const questionCounter = document.getElementById('question-counter');
+        const progressBar = document.getElementById('progress-bar');
+        const questionText = document.getElementById('question-text');
+        const questionHint = document.getElementById('question-hint');
+        const optionsContainer = document.getElementById('options-container');
+        const finalScore = document.getElementById('final-score');
+        const scorePercentage = document.getElementById('score-percentage');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const modalNextBtn = document.getElementById('modal-next-btn');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let shuffledQuestions = [];
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
+            startScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            resetState();
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+            const questionNumber = currentQuestionIndex + 1;
+            progressBar.style.width = `${(questionNumber / shuffledQuestions.length) * 100}%`;
+            questionCounter.innerText = `Question ${questionNumber} of ${shuffledQuestions.length}`;
+            questionText.innerText = currentQuestion.question;
+            questionHint.innerHTML = currentQuestion.hint;
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.innerHTML = `<span class="font-sans mr-3 text-base text-indigo-500">${String.fromCharCode(65 + index)}</span> ${option}`;
+                button.classList.add('quiz-option', 'w-full', 'text-left', 'p-4', 'border-2', 'border-gray-200', 'rounded-lg', 'text-lg', 'text-gray-800', 'hover:border-indigo-400', 'transition');
+                button.dataset.index = index;
+                button.addEventListener('click', selectAnswer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            while (optionsContainer.firstChild) {
+                optionsContainer.removeChild(optionsContainer.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedIndex = parseInt(e.currentTarget.dataset.index);
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+            const isCorrect = selectedIndex === currentQuestion.answer;
+            Array.from(optionsContainer.children).forEach(button => {
+                button.classList.add('disabled');
+            });
+            if (isCorrect) {
+                score++;
+                showFeedback(true, `<strong>Correct!</strong><br><br>${currentQuestion.explanation}`);
+            } else {
+                const incorrectAnswerText = currentQuestion.options[selectedIndex];
+                const correctAnswerText = currentQuestion.options[currentQuestion.answer];
+                const detailedExplanation = `Your answer, '${incorrectAnswerText}', was incorrect. The correct answer is '<strong>${correctAnswerText}</strong>'.<br><br><strong>Why:</strong> ${currentQuestion.explanation}`;
+                showFeedback(false, detailedExplanation);
+            }
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            if (isCorrect) {
+                feedbackTitle.innerText = "Correct! (정답!)";
+                feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
+                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+            } else {
+                feedbackTitle.innerText = "Incorrect (오답)";
+                feedbackTitle.className = "text-2xl font-bold mb-2 text-red-600";
+                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+            }
+            feedbackText.innerHTML = explanation;
+            feedbackModal.classList.remove('hidden');
+            setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
+        }
+
+        function handleNextQuestion() {
+            feedbackModal.classList.add('opacity-0');
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+                currentQuestionIndex++;
+                if (currentQuestionIndex < shuffledQuestions.length) {
+                    showQuestion();
+                } else {
+                    showEndScreen();
+                }
+            }, 300);
+        }
+
+        function showEndScreen() {
+            quizScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            const percentage = Math.round((score / shuffledQuestions.length) * 100);
+            finalScore.innerText = `${score} / ${shuffledQuestions.length}`;
+            scorePercentage.innerText = `${percentage}% Correct`;
+        }
+
+        startBtn.addEventListener('click', startQuiz);
+        modalNextBtn.addEventListener('click', handleNextQuestion);
+        restartBtn.addEventListener('click', () => {
+            endScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        });
+
+        quizScreen.classList.add('hidden');
+        endScreen.classList.add('hidden');
+        feedbackModal.classList.add('hidden', 'opacity-0');
+    </script>
+</body>
+</html>
