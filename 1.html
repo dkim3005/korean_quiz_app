@@ -10,9 +10,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .quiz-option {
+            transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+        }
         .quiz-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .disabled { pointer-events: none; opacity: 0.7; }
         #progress-bar, #feedback-modal { transition: all 0.3s ease-in-out; }
+        .correct {
+            background-color: #ecfdf5 !important;
+            border-color: #22c55e !important;
+        }
+        .incorrect {
+            background-color: #fff1f2 !important;
+            border-color: #ef4444 !important;
+        }
     </style>
 </head>
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
@@ -51,7 +62,7 @@
         <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 text-center">
             <h2 id="feedback-title" class="text-2xl font-bold mb-2"></h2>
             <p id="feedback-text" class="text-gray-700 text-lg mb-6"></p>
-            <button id="modal-next-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
+            <button id="modal-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
         </div>
     </div>
     <script>
@@ -62,7 +73,7 @@
             { question: "Choose the correct particle: '저는___ 한국 사람이에요.' (I am a Korean person.)", options: ["은", "는", "이", "가"], answer: 1, hint: "📌 Hint: The pronoun '저' ends in a vowel. Which topic particle follows a vowel?", explanation: "'는' is correct. The topic particle '는' is used after nouns ending in a vowel." },
             { question: "Which verb means 'to exercise'?", options: ["공부해요", "일해요", "운동해요", "전화해요"], answer: 2, hint: "📌 Hint: This word is often associated with health and gyms.", explanation: "'운동해요' is the verb for 'to exercise'." },
             { question: "What does '집' mean?", options: ["School", "Bank", "House", "Market"], answer: 2, hint: "📌 Hint: This is the place where you sleep and live with your family.", explanation: "'집' means 'house' or 'home'." },
-            { question:t: "What does '어디에 가요?' mean?", options: ["What are you doing?", "Where are you from?", "Where are you going?", "What is this?"], answer: 2, hint: "📌 Hint: '어디' means 'where' and '가요' means 'go'.", explanation: "'어디에 가요?' is the standard way to ask 'Where are you going?'." },
+            { question: "What does '어디에 가요?' mean?", options: ["What are you doing?", "Where are you from?", "Where are you going?", "What is this?"], answer: 2, hint: "📌 Hint: '어디' means 'where' and '가요' means 'go'.", explanation: "'어디에 가요?' is the standard way to ask 'Where are you going?'." },
             { question: "How do you respond to '뭐 해요?' if you are sleeping?", options: ["일해요.", "공부해요.", "자요.", "봐요."], answer: 2, hint: "📌 Hint: The verb for 'to sleep' is '자다'.", explanation: "'자요' is the polite present tense of '자다' (to sleep)." },
             { question: "Which word means 'restaurant'?", options: ["학교", "은행", "시장", "식당"], answer: 3, hint: "📌 Hint: This is a place where you go to eat food.", explanation: "'식당' means 'restaurant'." },
             { question: "What is the past tense of '읽다' (to read)?", options: ["읽았어요", "읽었어요", "읽했어요", "읽다었어요"], answer: 1, hint: "📌 Hint: For verb stems ending in a consonant that is not 'ㅏ' or 'ㅗ', you add '었어요'.", explanation: "'읽었어요' is the correct past tense form." },
@@ -102,7 +113,7 @@
             { question: "A friend asks '한국어 공부가 어때요?'. How do you say 'It's fun'?", options: ["어려워요.", "쉬워요.", "재미있어요.", "괜찮아요."], answer: 2, hint: "📌 Hint: '재미' means 'fun'.", explanation: "'재미있어요' means 'it's fun/interesting'." },
             { question: "The grammar '-(으)면서' describes:", options: ["A reason for an action", "Two actions happening at the same time", "An action that will happen in the future", "An action that happened in the past"], answer: 1, hint: "📌 Hint: Think about listening to music WHILE studying.", explanation: "'-(으)면서' is used to connect two actions that are performed simultaneously by the same person." },
             { question: "How do you say 'I study while listening to music'?", options: ["음악을 듣고 공부해요.", "음악을 들으면 공부해요.", "음악을 들으면서 공부해요.", "음악을 들어서 공부해요."], answer: 2, hint: "📌 Hint: '듣다' (to listen) + '-(으)면서' (while). Remember '듣다' is an irregular verb.", explanation: "'음악을 들으면서 공부해요' correctly uses the '-(으)면서' grammar to show two simultaneous actions." },
-            { question: "How do you conjugate '어렵다' (to be difficult) in the past tense?", options: ["어려웠어요", "어려웠어요", "어렵했어요", "어렵다했어요"], answer: 1, hint: "📌 Hint: '어렵다' is a 'ㅂ' irregular verb. The 'ㅂ' changes when it meets a past tense ending.", explanation: "'어려웠어요' is correct. The 'ㅂ' changes to '우' and combines with '-었어요' to become '-웠어요'." },
+            { question: "How do you conjugate '어렵다' (to be difficult) in the past tense?", options: ["어려워요", "어려웠어요", "어렵했어요", "어렵다했어요"], answer: 1, hint: "📌 Hint: '어렵다' is a 'ㅂ' irregular verb. The 'ㅂ' changes when it meets a past tense ending.", explanation: "'어려웠어요' is correct. The 'ㅂ' changes to '우' and combines with '-었어요' to become '-웠어요'." },
             { question: "Which particle is used for a tool or method?", options: ["하고", "에", "(으)로", "에서"], answer: 2, hint: "📌 Hint: How would you say 'I go BY bus'?", explanation: "'(으)로' is used to indicate the tool, method, or means by which something is done (e.g., '컴퓨터로 공부해요' - I study by computer)." },
             { question: "How do you say 'one cup of coffee'?", options: ["커피 한 잔", "커피 일 잔", "커피 하나 잔", "커피 한 개"], answer: 0, hint: "📌 Hint: The counter for cups is '잔', and the number '하나' (one) changes to '한' before a counter.", explanation: "'커피 한 잔' is the correct way to say 'one cup of coffee'." },
             { question: "What is the formal statement form of '가다' (to go)?", options: ["가요", "갑니다", "갔습니다", "가십니다"], answer: 1, hint: "📌 Hint: The formal '-ㅂ/습니다' ending. For verb stems ending in a vowel, you add '-ㅂ니다'.", explanation: "'갑니다' is the correct formal, non-past statement form of '가다'." }
@@ -122,11 +133,12 @@
         const feedbackModal = document.getElementById('feedback-modal');
         const feedbackTitle = document.getElementById('feedback-title');
         const feedbackText = document.getElementById('feedback-text');
-        const modalNextBtn = document.getElementById('modal-next-btn');
+        const modalBtn = document.getElementById('modal-btn');
 
         let currentQuestionIndex = 0;
         let score = 0;
         let shuffledQuestions = [];
+        let answeredCorrectly = false;
 
         function startQuiz() {
             currentQuestionIndex = 0;
@@ -140,6 +152,7 @@
 
         function showQuestion() {
             resetState();
+            answeredCorrectly = false;
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const questionNumber = currentQuestionIndex + 1;
             progressBar.style.width = `${(questionNumber / shuffledQuestions.length) * 100}%`;
@@ -163,36 +176,56 @@
         }
 
         function selectAnswer(e) {
-            const selectedIndex = parseInt(e.currentTarget.dataset.index);
+            const selectedButton = e.currentTarget;
+            const selectedIndex = parseInt(selectedButton.dataset.index);
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const isCorrect = selectedIndex === currentQuestion.answer;
-            Array.from(optionsContainer.children).forEach(button => {
-                button.classList.add('disabled');
-            });
+
             if (isCorrect) {
-                score++;
+                if (!answeredCorrectly) {
+                    score++;
+                    answeredCorrectly = true;
+                }
+                
+                Array.from(optionsContainer.children).forEach(button => {
+                    button.classList.add('disabled');
+                });
+                selectedButton.classList.add('correct');
+                
                 showFeedback(true, `<strong>Correct!</strong><br><br>${currentQuestion.explanation}`);
+
             } else {
-                const incorrectAnswerText = currentQuestion.options[selectedIndex];
-                const correctAnswerText = currentQuestion.options[currentQuestion.answer];
-                const detailedExplanation = `Your answer, '${incorrectAnswerText}', was incorrect. The correct answer is '<strong>${correctAnswerText}</strong>'.<br><br><strong>Why:</strong> ${currentQuestion.explanation}`;
-                showFeedback(false, detailedExplanation);
+                selectedButton.classList.add('incorrect', 'disabled');
+                showFeedback(false, `<strong>Incorrect.</strong> Please try again.<br><br>${currentQuestion.explanation}`);
             }
         }
 
         function showFeedback(isCorrect, explanation) {
+            const modalBtn = document.getElementById('modal-btn');
+            
             if (isCorrect) {
                 feedbackTitle.innerText = "Correct! (정답!)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
-                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+                modalBtn.innerText = "Next Question";
+                modalBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+                modalBtn.onclick = handleNextQuestion;
             } else {
                 feedbackTitle.innerText = "Incorrect (오답)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-red-600";
-                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+                modalBtn.innerText = "Try Again (다시 시도)";
+                modalBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+                modalBtn.onclick = handleTryAgain;
             }
             feedbackText.innerHTML = explanation;
             feedbackModal.classList.remove('hidden');
             setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
+        }
+        
+        function handleTryAgain() {
+            feedbackModal.classList.add('opacity-0');
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+            }, 300);
         }
 
         function handleNextQuestion() {
@@ -217,7 +250,6 @@
         }
 
         startBtn.addEventListener('click', startQuiz);
-        modalNextBtn.addEventListener('click', handleNextQuestion);
         restartBtn.addEventListener('click', () => {
             endScreen.classList.add('hidden');
             startScreen.classList.remove('hidden');
