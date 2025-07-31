@@ -10,14 +10,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .quiz-option {
+            transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+        }
         .quiz-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .disabled { pointer-events: none; opacity: 0.7; }
         #progress-bar, #feedback-modal { transition: all 0.3s ease-in-out; }
+        .correct {
+            background-color: #ecfdf5 !important;
+            border-color: #22c55e !important;
+        }
+        .incorrect {
+            background-color: #fff1f2 !important;
+            border-color: #ef4444 !important;
+        }
     </style>
 </head>
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
     <div class="w-full max-w-xl">
-        <div id="quiz-screen" class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 hidden">
+        <div id="quiz-screen" class="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
             <div id="quiz-header" class="mb-6">
                 <p class="text-sm font-semibold text-indigo-600">Set 3</p>
                 <p id="question-counter" class="text-sm font-semibold text-indigo-600">Question 1 of 50</p>
@@ -30,11 +41,6 @@
                 <p id="question-hint" class="text-base text-gray-500 mb-6 p-3 bg-gray-50 rounded-lg"></p>
                 <div id="options-container" class="space-y-3"></div>
             </div>
-        </div>
-        <div id="start-screen" class="text-center">
-            <h1 class="text-4xl md:text-5xl font-black text-gray-800">Final Korean Review</h1>
-            <p class="text-gray-600 mt-4 text-lg">Set 3: Tenses & Connectors</p>
-            <button id="start-btn" class="w-full max-w-sm mx-auto mt-8 bg-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-700 transition duration-300 text-xl shadow-lg">Start Quiz (50 Questions)</button>
         </div>
         <div id="end-screen" class="hidden text-center bg-white rounded-2xl shadow-2xl p-8 md:p-10">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Set 3 Complete!</h1>
@@ -51,67 +57,65 @@
         <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 text-center">
             <h2 id="feedback-title" class="text-2xl font-bold mb-2"></h2>
             <p id="feedback-text" class="text-gray-700 text-lg mb-6"></p>
-            <button id="modal-next-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
+            <button id="modal-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
         </div>
     </div>
     <script>
         const quizData = [
-            // Add 50 new questions for Set 3 here
-            { question: "What is the past tense of '공부하다' (to study)?", options: ["공부했어요", "공부했어요", "공부핬어요", "공부해았어요"], answer: 1, hint: "📌 Hint: Verbs ending in '하다' become '했어요' in the past tense.", explanation: "'공부했어요' is the correct past tense form for all '하다' verbs." },
+            { question: "What is the past tense of '공부하다' (to study)?", options: ["공부했어요", "공부핬어요", "공부해았어요", "공부해요"], answer: 0, hint: "📌 Hint: Verbs ending in '하다' become '했어요' in the past tense.", explanation: "'공부했어요' is the correct past tense form for all '하다' verbs." },
             { question: "How do you connect 'I ate lunch AND drank coffee'?", options: ["점심을 먹지만 커피를 마셨어요.", "점심을 먹어서 커피를 마셨어요.", "점심을 먹고 커피를 마셨어요.", "점심을 먹으니까 커피를 마셨어요."], answer: 2, hint: "📌 Hint: Use the '-고' connector to simply list actions in sequence.", explanation: "'-고' is used to connect two or more actions in the order they occurred." },
             { question: "What is the future tense of '만나다' (to meet)?", options: ["만났어요", "만나요", "만날 거예요", "만날까요"], answer: 2, hint: "📌 Hint: Use the '-(으)ㄹ 거예요' grammar for future plans.", explanation: "'만날 거예요' is the correct future tense, meaning 'I will meet'." },
             { question: "How do you say 'I will read a book at the library'?", options: ["도서관에서 책을 읽었어요.", "도서관에서 책을 읽을 거예요.", "도서관에 책을 읽을 거예요.", "도서관에서 책을 읽고 싶어요."], answer: 1, hint: "📌 Hint: Combine the location of action particle '에서' with the future tense.", explanation: "'도서관에서' marks the location of the action, and '읽을 거예요' is the future tense." },
             { question: "What does '하지만' mean?", options: ["And", "So", "But / However", "Then"], answer: 2, hint: "📌 Hint: It's used to show contrast between two sentences.", explanation: "'하지만' is a conjunction that means 'but' or 'however'." },
             { question: "Fill in the blank: '비가 와요. ____ 우산이 없어요.' (It's raining. BUT I don't have an umbrella.)", options: ["그리고", "그래서", "하지만", "그러면"], answer: 2, hint: "📌 Hint: The two clauses are in contrast.", explanation: "'하지만' is the correct conjunction to show contrast between the two statements." },
             { question: "How do you say 'I'm tired, SO I will sleep early'?", options: ["피곤해서 일찍 잘 거예요.", "피곤하고 일찍 잘 거예요.", "피곤하지만 일찍 잘 거예요.", "피곤하면 일찍 잘 거예요."], answer: 0, hint: "📌 Hint: Use '-(아/어)서' to show a natural reason and result.", explanation: "'피곤해서' means 'because I'm tired', providing the reason for the following action." },
-            { question: "What is the past tense of '살다' (to live)?", options: ["살았어요", "살었어요", "사랐어요", "살었어요"], answer: 0, hint: "📌 Hint: '살다' is a 'ㄹ' irregular verb, but it is regular in the past tense.", explanation: "'살았어요' is correct. The 'ㄹ' does not drop before the past tense ending." },
+            { question: "What is the past tense of '살다' (to live)?", options: ["살았어요", "사랐어요", "살아요", "살았습니다"], answer: 0, hint: "📌 Hint: '살다' is a 'ㄹ' irregular verb, but it is regular in the past tense.", explanation: "'살았어요' is correct. The 'ㄹ' does not drop before the past tense ending." },
             { question: "How do you say 'I will go to Korea next year'?", options: ["작년에 한국에 갈 거예요.", "올해 한국에 갈 거예요.", "내년에 한국에 갈 거예요.", "매년 한국에 갈 거예요."], answer: 2, hint: "📌 Hint: '내년' means 'next year'.", explanation: "'내년에 한국에 갈 거예요' correctly combines the word for 'next year' with the future tense." },
             { question: "Fill in the blank: '영화를 봤어요. ____ 재미없었어요.' (I watched the movie. BUT it wasn't fun.)", options: ["그리고", "그래서", "그런데", "그러면"], answer: 2, hint: "📌 Hint: '그런데' is similar to '하지만' and is used to introduce a contrasting idea.", explanation: "'그런데' is often used in conversation to mean 'but' or 'by the way', introducing a twist or a change of subject." },
-            { question: "What is the future tense of '듣다' (to listen)?", options: ["들을 거예요", "들을 거예요", "듣을 거예요", "들를 거예요"], answer: 1, hint: "📌 Hint: '듣다' is a 'ㄷ' irregular verb. The 'ㄷ' changes to 'ㄹ' before the future tense ending.", explanation: "'들을 거예요' is correct. The 'ㄷ' becomes 'ㄹ' before the '-(으)ㄹ 거예요' ending." },
+            { question: "What is the future tense of '듣다' (to listen)?", options: ["들을 거예요", "듣을 거예요", "들를 거예요", "들어요"], answer: 0, hint: "📌 Hint: '듣다' is a 'ㄷ' irregular verb. The 'ㄷ' changes to 'ㄹ' before the future tense ending.", explanation: "'들을 거예요' is correct. The 'ㄷ' becomes 'ㄹ' before the '-(으)ㄹ 거예요' ending." },
             { question: "How do you say 'If it rains, I will not go.'?", options: ["비가 와서 안 갈 거예요.", "비가 오니까 안 갈 거예요.", "비가 오면 안 갈 거예요.", "비가 오지만 안 갈 거예요."], answer: 2, hint: "📌 Hint: The grammar for 'if' or 'when' is '-(으)면'.", explanation: "'비가 오면' means 'if it rains', setting up a condition for the following clause." },
             { question: "What is the past tense of '주다' (to give)?", options: ["줬어요", "주었어요", "A and B are both correct", "주웠어요"], answer: 2, hint: "📌 Hint: '주었어요' can be contracted.", explanation: "Both are correct. '줬어요' is the common contracted form of '주었어요'." },
             { question: "How do you say 'I studied hard, so the test was easy'?", options: ["열심히 공부해서 시험이 쉬웠어요.", "열심히 공부했지만 시험이 쉬웠어요.", "열심히 공부하고 시험이 쉬웠어요.", "열심히 공부하면 시험이 쉬웠어요."], answer: 0, hint: "📌 Hint: The first clause is the reason for the second clause.", explanation: "'공부해서' (because I studied) correctly links the reason to the result." },
-            { question: "What is the future tense of '놀다' (to play)?", options: ["놀을 거예요", "놀 거예요", "놀 거예요", "놀ㄹ 거예요"], answer: 1, hint: "📌 Hint: For 'ㄹ' irregular verbs, you drop the 'ㄹ' and add 'ㄹ 거예요'.", explanation: "'놀 거예요' is correct. The verb stem '놀-' already ends in 'ㄹ', so you just add ' 거예요'." },
+            { question: "What is the future tense of '놀다' (to play)?", options: ["놀을 거예요", "놀 거예요", "놀ㄹ 거예요", "놀아요"], answer: 1, hint: "📌 Hint: For 'ㄹ' irregular verbs, you drop the 'ㄹ' and add 'ㄹ 거예요'.", explanation: "'놀 거예요' is correct. The verb stem '놀-' already ends in 'ㄹ', so you just add ' 거예요'." },
             { question: "How do you say 'I met a friend and we ate together'?", options: ["친구를 만나서 같이 밥을 먹었어요.", "친구를 만나고 같이 밥을 먹었어요.", "A and B can be correct", "친구를 만나면 같이 밥을 먹었어요."], answer: 2, hint: "📌 Hint: Both '-고' and '-아서' can be used here, but they have slightly different nuances.", explanation: "Both can be correct. '-고' simply lists the events. '-아서' implies that meeting the friend led to eating together, which is also natural." },
-            { question: "What is the past tense of '쓰다' (to write)?", options: ["썼어요", "쓰었어요", "썼어요", "써요"], answer: 0, hint: "📌 Hint: For verbs ending in the vowel '으', the '으' is dropped and the ending is determined by the preceding vowel (or lack thereof).", explanation: "'썼어요' is correct. The '으' is dropped from '쓰다', and since there's no other vowel, '-었어요' is added." },
+            { question: "What is the past tense of '쓰다' (to write)?", options: ["썼어요", "쓰었어요", "써요", "썼습니다"], answer: 0, hint: "📌 Hint: For verbs ending in the vowel '으', the '으' is dropped and the ending is determined by the preceding vowel (or lack thereof).", explanation: "'썼어요' is correct. The '으' is dropped from '쓰다', and since there's no other vowel, '-었어요' is added." },
             { question: "How do you say 'I will clean my room tomorrow'?", options: ["내일 방을 청소해요.", "내일 방을 청소했어요.", "내일 방을 청소할 거예요.", "내일 방을 청소할까요?"], answer: 2, hint: "📌 Hint: '내일' (tomorrow) requires the future tense.", explanation: "'청소할 거예요' is the future tense of '청소하다', matching the time word '내일'." },
             { question: "What does '그러면' mean?", options: ["And", "But", "So/Therefore", "Then / In that case"], answer: 3, hint: "📌 Hint: It's often used to start a sentence after hearing some information.", explanation: "'그러면' means 'then' or 'in that case', used to logically proceed from a previous statement." },
             { question: "How do you say 'I am going to the bank to withdraw money'?", options: ["돈을 찾고 은행에 가요.", "돈을 찾으러 은행에 가요.", "돈을 찾아서 은행에 가요.", "돈을 찾지만 은행에 가요."], answer: 1, hint: "📌 Hint: The grammar '-(으)러 가다' is used to express the purpose of going somewhere.", explanation: "'찾으러' is correct. '-(으)러 가다' means 'to go (in order) to do (verb)'." },
             { question: "What is the past tense of '아프다' (to be sick/hurt)?", options: ["아팠어요", "아펐어요", "아프었어요", "아파요"], answer: 0, hint: "📌 Hint: For stems ending in '으', the '으' is dropped. The ending depends on the vowel in the first syllable.", explanation: "'아팠어요' is correct. The '으' drops, and because the first syllable has 'ㅏ', '-았어요' is added." },
             { question: "How do you say 'I will buy a gift for my friend's birthday'?", options: ["친구 생일이라서 선물을 살 거예요.", "친구 생일이고 선물을 살 거예요.", "친구 생일이지만 선물을 살 거예요.", "친구 생일이면 선물을 살 거예요."], answer: 0, hint: "📌 Hint: 'Because it's my friend's birthday...'", explanation: "'-(이)라서' is the '-(아/어)서' form for nouns, meaning 'because it is (noun)'." },
-            { question: "What is the future tense of '돕다' (to help)?", options: ["도울 거예요", "도울 거예요", "도울 거예요", "돕을 거예요"], answer: 2, hint: "📌 Hint: '돕다' is a 'ㅂ' irregular verb. Remember it changes to '오' before a vowel.", explanation: "'도울 거예요' is correct. The 'ㅂ' in '돕다' changes to '오', which then combines with '-(으)ㄹ 거예요'." },
+            { question: "What is the future tense of '돕다' (to help)?", options: ["도울 거예요", "돕을 거예요", "도와요", "도울까요"], answer: 0, hint: "📌 Hint: '돕다' is a 'ㅂ' irregular verb. Remember it changes to '오' before a vowel.", explanation: "'도울 거예요' is correct. The 'ㅂ' in '돕다' changes to '오', which then combines with '-(으)ㄹ 거예요'." },
             { question: "How do you say 'After work, I will go home'?", options: ["일이 끝나고 집에 갈 거예요.", "일이 끝나서 집에 갈 거예요.", "일이 끝나면 집에 갈 거예요.", "일이 끝나지만 집에 갈 거예요."], answer: 2, hint: "📌 Hint: '-(으)면' can mean 'if', but it can also mean 'when' for a future event.", explanation: "'일이 끝나면' is a very natural way to say 'When work is finished...'. '-고' is also possible but '-(으)면' is common." },
-            { question: "What is the past tense of '배우다' (to learn)?", options: ["배웠어요", "배우었어요", "배왔어요", "배웠어요"], answer: 0, hint: "📌 Hint: The verb stem ends in '우'. How does it combine with '-었어요'?", explanation: "'배웠어요' is correct. '우' and '어' combine to form '웠'." },
+            { question: "What is the past tense of '배우다' (to learn)?", options: ["배웠어요", "배우었어요", "배왔어요", "배워요"], answer: 0, hint: "📌 Hint: The verb stem ends in '우'. How does it combine with '-었어요'?", explanation: "'배웠어요' is correct. '우' and '어' combine to form '웠'." },
             { question: "How do you say 'I'm going to the library, and then I'm going to the market'?", options: ["도서관에 가고 그리고 시장에 갈 거예요.", "도서관에 가고 시장에 갈 거예요.", "도서관에 가서 시장에 갈 거예요.", "도서관에 가지만 시장에 갈 거예요."], answer: 1, hint: "📌 Hint: You can simply connect the two clauses with '-고'.", explanation: "'가고' is the simplest way to connect two sequential actions." },
             { question: "What is the past tense of '모르다' (to not know)?", options: ["몰랐어요", "모르었어요", "몰았어요", "모랐어요"], answer: 0, hint: "📌 Hint: This is a '르' irregular verb.", explanation: "'몰랐어요' is correct. For '르' irregular verbs, an extra 'ㄹ' is added and it conjugates based on the preceding vowel." },
             { question: "How do you say 'I will not work tomorrow'?", options: ["내일 일을 못할 거예요.", "내일 일을 안 할 거예요.", "내일 일을 하지 않을 거예요.", "B and C are both correct."], answer: 3, hint: "📌 Hint: '안' can go before the verb, or '-지 않다' can go after the verb stem.", explanation: "Both '안 할 거예요' and '하지 않을 거예요' are correct ways to say 'will not do'. '안' is generally more conversational." },
-            { question: "What is the future tense of '살다' (to live)?", options: ["살을 거예요", "살 거예요", "살 거예요", "살ㄹ 거예요"], answer: 1, hint: "📌 Hint: For verb stems that already end in 'ㄹ', you just add ' 거예요'.", explanation: "'살 거예요' is correct. You don't add an extra 'ㄹ'." },
+            { question: "What is the future tense of '살다' (to live)?", options: ["살을 거예요", "살 거예요", "살ㄹ 거예요", "살아요"], answer: 1, hint: "📌 Hint: For verb stems that already end in 'ㄹ', you just add ' 거예요'.", explanation: "'살 거예요' is correct. You don't add an extra 'ㄹ'." },
             { question: "How do you say 'I will exercise after I wake up'?", options: ["일어나고 운동할 거예요.", "일어나서 운동할 거예요.", "일어나면 운동할 거예요.", "B and C are both natural"], answer: 3, hint: "📌 Hint: Both 'when I wake up' and 'after waking up' make sense here.", explanation: "Both are very natural. '일어나서' implies a close connection between the two actions. '일어나면' sets waking up as the condition for exercising." },
-            { question: "What is the past tense of '기다리다' (to wait)?", options: ["기다렸어요", "기다리었어요", "기다랐어요", "기다렸어요"], answer: 0, hint: "📌 Hint: The verb stem ends in '리'. How does '리' combine with '-었어요'?", explanation: "'기다렸어요' is correct. The 'ㅣ' vowel combines with '어' to make '여'." },
+            { question: "What is the past tense of '기다리다' (to wait)?", options: ["기다렸어요", "기다리었어요", "기다랐어요", "기다려요"], answer: 0, hint: "📌 Hint: The verb stem ends in '리'. How does '리' combine with '-었어요'?", explanation: "'기다렸어요' is correct. The 'ㅣ' vowel combines with '어' to make '여'." },
             { question: "How do you say 'I will call you when I arrive'?", options: ["도착하고 전화할게요.", "도착해서 전화할게요.", "도착하면 전화할게요.", "도착하지만 전화할게요."], answer: 2, hint: "📌 Hint: Use '-(으)면' for 'when' a future action happens.", explanation: "'도착하면' means 'when I arrive', setting the condition for the promise '전화할게요' (I'll call you)." },
-            { question: "What is the past tense of '흐리다' (to be cloudy)?", options: ["흐리었어요", "흐렸어요", "흐랐어요", "흐렸어요"], answer: 1, hint: "📌 Hint: Similar to '기다리다', the 'ㅣ' vowel combines with '어'.", explanation: "'흐렸어요' is correct. '흐리 + 었어요' becomes '흐렸어요'." },
+            { question: "What is the past tense of '흐리다' (to be cloudy)?", options: ["흐리었어요", "흐렸어요", "흐랐어요", "흐려요"], answer: 1, hint: "📌 Hint: Similar to '기다리다', the 'ㅣ' vowel combines with '어'.", explanation: "'흐렸어요' is correct. '흐리 + 었어요' becomes '흐렸어요'." },
             { question: "How do you say 'I was tired, but I did my homework'?", options: ["피곤해서 숙제했어요.", "피곤했지만 숙제했어요.", "피곤하고 숙제했어요.", "피곤하면 숙제했어요."], answer: 1, hint: "📌 Hint: Use '-지만' to show contrast.", explanation: "'피곤했지만' means 'although I was tired' or 'I was tired, but...'" },
-            { question: "What is the future tense of '짓다' (to build)?", options: ["지을 거예요", "짓을 거예요", "지을 거예요", "지을 거예요"], answer: 0, hint: "📌 Hint: '짓다' is a 'ㅅ' irregular verb. The 'ㅅ' disappears before a vowel.", explanation: "'지을 거예요' is correct. The 'ㅅ' is dropped before the vowel in '-(으)ㄹ 거예요'." },
+            { question: "What is the future tense of '짓다' (to build)?", options: ["지을 거예요", "짓을 거예요", "지어요", "지을까요"], answer: 0, hint: "📌 Hint: '짓다' is a 'ㅅ' irregular verb. The 'ㅅ' disappears before a vowel.", explanation: "'지을 거예요' is correct. The 'ㅅ' is dropped before the vowel in '-(으)ㄹ 거예요'." },
             { question: "How do you say 'I'm going to the market to buy apples'?", options: ["사과를 사고 시장에 가요.", "사과를 사서 시장에 가요.", "사과를 사러 시장에 가요.", "사과를 사지만 시장에 가요."], answer: 2, hint: "📌 Hint: Use '-(으)러 가다' to show the purpose of going.", explanation: "'사러 가요' means 'go to buy', correctly expressing the purpose." },
-            { question: "What is the past tense of '빠르다' (to be fast)?", options: ["빨르었어요", "빨랐어요", "빨랐어요", "빨라요"], answer: 1, hint: "📌 Hint: '빠르다' is a '르' irregular verb.", explanation: "'빨랐어요' is correct. For '르' irregular verbs, an extra 'ㄹ' is added to the syllable before." },
+            { question: "What is the past tense of '빠르다' (to be fast)?", options: ["빨르었어요", "빨랐어요", "빨라요", "빨랐습니다"], answer: 1, hint: "📌 Hint: '빠르다' is a '르' irregular verb.", explanation: "'빨랐어요' is correct. For '르' irregular verbs, an extra 'ㄹ' is added to the syllable before." },
             { question: "How do you say 'I will rest if I'm tired tomorrow'?", options: ["내일 피곤해서 쉴 거예요.", "내일 피곤하니까 쉴 거예요.", "내일 피곤하면 쉴 거예요.", "내일 피곤하고 쉴 거예요."], answer: 2, hint: "📌 Hint: Use '-(으)면' for a hypothetical 'if' condition.", explanation: "'피곤하면' means 'if I'm tired', setting the condition." },
-            { question: "What is the past tense of '열다' (to open)?", options: ["열었어요", "열았어요", "열었어요", "열었어요"], answer: 2, hint: "📌 Hint: '열다' is a regular verb.", explanation: "'열었어요' is correct. It follows the standard conjugation rule for verbs ending in 'ㄹ'." },
+            { question: "What is the past tense of '열다' (to open)?", options: ["열었어요", "열았어요", "열어요", "열었습니다"], answer: 0, hint: "📌 Hint: '열다' is a regular verb.", explanation: "'열었어요' is correct. It follows the standard conjugation rule for verbs ending in 'ㄹ'." },
             { question: "How do you say 'I will watch a movie after I finish my homework'?", options: ["숙제를 끝내고 영화를 볼 거예요.", "숙제를 끝내서 영화를 볼 거예요.", "숙제를 끝내면 영화를 볼 거예요.", "A and C are both natural"], answer: 3, hint: "📌 Hint: Both 'and then' and 'when/if' work well here.", explanation: "Both are natural. '끝내고' simply lists the sequence. '끝내면' means 'when I finish', which also fits perfectly." },
-            { question: "What is the past tense of '고르다' (to choose)?", options: ["고르었어요", "골랐어요", "골랐어요", "고랐어요"], answer: 1, hint: "📌 Hint: This is a '르' irregular verb.", explanation: "'골랐어요' is correct. It follows the '르' irregular conjugation rule." },
+            { question: "What is the past tense of '고르다' (to choose)?", options: ["고르었어요", "골랐어요", "고랐어요", "골라요"], answer: 1, hint: "📌 Hint: This is a '르' irregular verb.", explanation: "'골랐어요' is correct. It follows the '르' irregular conjugation rule." },
             { question: "How do you say 'I was happy because I met my friend'?", options: ["친구를 만나서 기뻤어요.", "친구를 만나고 기뻤어요.", "친구를 만났지만 기뻤어요.", "친구를 만나면 기뻤어요."], answer: 0, hint: "📌 Hint: Use '-(아/어)서' for the reason.", explanation: "'만나서' (because I met) correctly provides the reason for feeling happy." },
-            { question: "What is the future tense of '걷다' (to walk)?", options: ["걸을 거예요", "걸을 거예요", "걷을 거예요", "걸를 거예요"], answer: 0, hint: "📌 Hint: This is a 'ㄷ' irregular verb.", explanation: "'걸을 거예요' is correct. The 'ㄷ' changes to 'ㄹ' before the future tense ending." },
+            { question: "What is the future tense of '걷다' (to walk)?", options: ["걸을 거예요", "걷을 거예요", "걸를 거예요", "걸어요"], answer: 0, hint: "📌 Hint: This is a 'ㄷ' irregular verb.", explanation: "'걸을 거예요' is correct. The 'ㄷ' changes to 'ㄹ' before the future tense ending." },
             { question: "How do you say 'I will call my parents this weekend'?", options: ["이번 주말에 부모님께 전화할 거예요.", "이번 주말에 부모님을 전화할 거예요.", "이번 주말에 부모님에서 전화할 거예요.", "이번 주말에 부모님이 전화할 거예요."], answer: 0, hint: "📌 Hint: The particle '께' is the honorific version of '에게' (to someone).", explanation: "'부모님께' is the correct and polite way to say 'to my parents'." },
-            { question: "What is the past tense of '파랗다' (to be blue)?", options: ["파랗았어요", "파랬어요", "파랬어요", "파랬어요"], answer: 2, hint: "📌 Hint: This is a 'ㅎ' irregular adjective.", explanation: "'파랬어요' is correct. The 'ㅎ' is dropped and 'ㅏ' changes to 'ㅐ' before the ending." },
+            { question: "What is the past tense of '파랗다' (to be blue)?", options: ["파랗았어요", "파랬어요", "파래요", "파랗습니다"], answer: 1, hint: "📌 Hint: This is a 'ㅎ' irregular adjective.", explanation: "'파랬어요' is correct. The 'ㅎ' is dropped and 'ㅏ' changes to 'ㅐ' before the ending." },
             { question: "How do you say 'I will go hiking if the weather is good'?", options: ["날씨가 좋아서 등산할 거예요.", "날씨가 좋으니까 등산할 거예요.", "날씨가 좋으면 등산할 거예요.", "날씨가 좋지만 등산할 거예요."], answer: 2, hint: "📌 Hint: Use '-(으)면' for an 'if' condition.", explanation: "'날씨가 좋으면' means 'if the weather is good'." },
-            { question: "What is the past tense of '자르다' (to cut)?", options: ["잘랐어요", "자르었어요", "자랐어요", "잘랐어요"], answer: 0, hint: "📌 Hint: This is a '르' irregular verb.", explanation: "'잘랐어요' is the correct past tense form, following the '르' irregular rule." },
+            { question: "What is the past tense of '자르다' (to cut)?", options: ["잘랐어요", "자르었어요", "자랐어요", "잘라요"], answer: 0, hint: "📌 Hint: This is a '르' irregular verb.", explanation: "'잘랐어요' is the correct past tense form, following the '르' irregular rule." },
             { question: "How do you say 'I will decide after I think about it'?", options: ["생각해 보고 결정할게요.", "생각해 봐서 결정할게요.", "생각해 보면 결정할게요.", "A and C are both natural"], answer: 3, hint: "📌 Hint: '-고' (and then) and '-면' (when/if) both fit the context.", explanation: "Both are natural. '생각해 보고' implies a sequence: first think, then decide. '생각해 보면' implies 'When I've thought about it, I'll decide'." },
-            { question: "What is the future tense of '열다' (to open)?", options: ["열을 거예요", "열 거예요", "열 거예요", "열ㄹ 거예요"], answer: 1, hint: "📌 Hint: For verb stems ending in 'ㄹ', just add ' 거예요'.", explanation: "'열 거예요' is correct. You do not add an extra 'ㄹ'." },
+            { question: "What is the future tense of '열다' (to open)?", options: ["열을 거예요", "열 거예요", "열ㄹ 거예요", "열어요"], answer: 1, hint: "📌 Hint: For verb stems ending in 'ㄹ', just add ' 거예요'.", explanation: "'열 거예요' is correct. You do not add an extra 'ㄹ'." },
             { question: "How do you say 'I came to Korea to study Korean'?", options: ["한국어를 공부해러 한국에 왔어요.", "한국어를 공부하러 한국에 왔어요.", "한국어를 공부해서 한국에 왔어요.", "한국어를 공부하고 한국에 왔어요."], answer: 1, hint: "📌 Hint: Use '-(으)러 오다' to express the purpose of coming.", explanation: "'공부하러' is correct, meaning '(in order) to study'." }
         ];
-        const startScreen = document.getElementById('start-screen');
+        
         const quizScreen = document.getElementById('quiz-screen');
         const endScreen = document.getElementById('end-screen');
-        const startBtn = document.getElementById('start-btn');
         const restartBtn = document.getElementById('restart-btn');
         const questionCounter = document.getElementById('question-counter');
         const progressBar = document.getElementById('progress-bar');
@@ -123,24 +127,25 @@
         const feedbackModal = document.getElementById('feedback-modal');
         const feedbackTitle = document.getElementById('feedback-title');
         const feedbackText = document.getElementById('feedback-text');
-        const modalNextBtn = document.getElementById('modal-next-btn');
+        const modalBtn = document.getElementById('modal-btn');
 
         let currentQuestionIndex = 0;
         let score = 0;
         let shuffledQuestions = [];
+        let answeredCorrectly = false;
 
         function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
             shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
-            startScreen.classList.add('hidden');
-            endScreen.classList.add('hidden');
             quizScreen.classList.remove('hidden');
+            endScreen.classList.add('hidden');
             showQuestion();
         }
 
         function showQuestion() {
             resetState();
+            answeredCorrectly = false;
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const questionNumber = currentQuestionIndex + 1;
             progressBar.style.width = `${(questionNumber / shuffledQuestions.length) * 100}%`;
@@ -164,36 +169,56 @@
         }
 
         function selectAnswer(e) {
-            const selectedIndex = parseInt(e.currentTarget.dataset.index);
+            const selectedButton = e.currentTarget;
+            const selectedIndex = parseInt(selectedButton.dataset.index);
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const isCorrect = selectedIndex === currentQuestion.answer;
-            Array.from(optionsContainer.children).forEach(button => {
-                button.classList.add('disabled');
-            });
+
             if (isCorrect) {
-                score++;
+                if (!answeredCorrectly) {
+                    score++;
+                    answeredCorrectly = true;
+                }
+                
+                Array.from(optionsContainer.children).forEach(button => {
+                    button.classList.add('disabled');
+                });
+                selectedButton.classList.add('correct');
+                
                 showFeedback(true, `<strong>Correct!</strong><br><br>${currentQuestion.explanation}`);
+
             } else {
-                const incorrectAnswerText = currentQuestion.options[selectedIndex];
-                const correctAnswerText = currentQuestion.options[currentQuestion.answer];
-                const detailedExplanation = `Your answer, '${incorrectAnswerText}', was incorrect. The correct answer is '<strong>${correctAnswerText}</strong>'.<br><br><strong>Why:</strong> ${currentQuestion.explanation}`;
-                showFeedback(false, detailedExplanation);
+                selectedButton.classList.add('incorrect', 'disabled');
+                showFeedback(false, `<strong>Incorrect.</strong> Please try again.<br><br>${currentQuestion.explanation}`);
             }
         }
 
         function showFeedback(isCorrect, explanation) {
+            const modalBtn = document.getElementById('modal-btn');
+            
             if (isCorrect) {
                 feedbackTitle.innerText = "Correct! (정답!)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
-                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+                modalBtn.innerText = "Next Question";
+                modalBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+                modalBtn.onclick = handleNextQuestion;
             } else {
                 feedbackTitle.innerText = "Incorrect (오답)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-red-600";
-                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+                modalBtn.innerText = "Try Again (다시 시도)";
+                modalBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+                modalBtn.onclick = handleTryAgain;
             }
             feedbackText.innerHTML = explanation;
             feedbackModal.classList.remove('hidden');
             setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
+        }
+        
+        function handleTryAgain() {
+            feedbackModal.classList.add('opacity-0');
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+            }, 300);
         }
 
         function handleNextQuestion() {
@@ -217,16 +242,14 @@
             scorePercentage.innerText = `${percentage}% Correct`;
         }
 
-        startBtn.addEventListener('click', startQuiz);
-        modalNextBtn.addEventListener('click', handleNextQuestion);
-        restartBtn.addEventListener('click', () => {
-            endScreen.classList.add('hidden');
-            startScreen.classList.remove('hidden');
+        document.addEventListener('DOMContentLoaded', (event) => {
+            startQuiz();
         });
 
-        quizScreen.classList.add('hidden');
-        endScreen.classList.add('hidden');
-        feedbackModal.classList.add('hidden', 'opacity-0');
+        restartBtn.addEventListener('click', () => {
+            endScreen.classList.add('hidden');
+            startQuiz();
+        });
     </script>
 </body>
 </html>
