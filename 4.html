@@ -10,14 +10,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .quiz-option {
+            transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+        }
         .quiz-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .disabled { pointer-events: none; opacity: 0.7; }
         #progress-bar, #feedback-modal { transition: all 0.3s ease-in-out; }
+        .correct {
+            background-color: #ecfdf5 !important;
+            border-color: #22c55e !important;
+        }
+        .incorrect {
+            background-color: #fff1f2 !important;
+            border-color: #ef4444 !important;
+        }
     </style>
 </head>
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
     <div class="w-full max-w-xl">
-        <div id="quiz-screen" class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 hidden">
+        <div id="quiz-screen" class="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
             <div id="quiz-header" class="mb-6">
                 <p class="text-sm font-semibold text-indigo-600">Set 4</p>
                 <p id="question-counter" class="text-sm font-semibold text-indigo-600">Question 1 of 50</p>
@@ -30,11 +41,6 @@
                 <p id="question-hint" class="text-base text-gray-500 mb-6 p-3 bg-gray-50 rounded-lg"></p>
                 <div id="options-container" class="space-y-3"></div>
             </div>
-        </div>
-        <div id="start-screen" class="text-center">
-            <h1 class="text-4xl md:text-5xl font-black text-gray-800">Final Korean Review</h1>
-            <p class="text-gray-600 mt-4 text-lg">Set 4: Honorifics & Situational Expressions</p>
-            <button id="start-btn" class="w-full max-w-sm mx-auto mt-8 bg-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-700 transition duration-300 text-xl shadow-lg">Start Quiz (50 Questions)</button>
         </div>
         <div id="end-screen" class="hidden text-center bg-white rounded-2xl shadow-2xl p-8 md:p-10">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Set 4 Complete!</h1>
@@ -51,12 +57,11 @@
         <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 text-center">
             <h2 id="feedback-title" class="text-2xl font-bold mb-2"></h2>
             <p id="feedback-text" class="text-gray-700 text-lg mb-6"></p>
-            <button id="modal-next-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
+            <button id="modal-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
         </div>
     </div>
     <script>
         const quizData = [
-            // Add 50 new questions for Set 4 here
             { question: "How do you say 'My mother is sleeping' using honorifics?", options: ["어머니가 자요.", "어머니께서 자요.", "어머니께서 주무세요.", "어머니가 주무세요."], answer: 2, hint: "📌 Hint: The honorific verb for '자다' (to sleep) is '주무시다', and use the honorific particle '께서'.", explanation: "'어머니께서 주무세요' is the correct honorific form. '께서' is the honorific subject particle and '주무시다' is the honorific verb for 'to sleep'." },
             { question: "What is the honorific form of '있다' (to be at a location)?", options: ["있으세요", "계세요", "가지세요", "주무세요"], answer: 1, hint: "📌 Hint: This is a special honorific verb, not just adding '-(으)시-'.", explanation: "'계시다' (present tense '계세요') is the special honorific verb for '있다'." },
             { question: "How do you say 'The professor is not at school' politely?", options: ["교수님은 학교에 없어요.", "교수님께서 학교에 안 계세요.", "교수님께서 학교에 없으세요.", "교수님이 학교에 안 계세요."], answer: 1, hint: "📌 Hint: The negative of '계시다' is '안 계시다'.", explanation: "'교수님께서 학교에 안 계세요' is the correct polite and negative form." },
@@ -108,10 +113,9 @@
             { question: "How do you say 'I have tried eating kimchi'?", options: ["김치를 먹었어요.", "김치를 먹고 싶어요.", "김치를 먹어 봤어요.", "김치를 먹을 거예요."], answer: 2, hint: "📌 Hint: Use '-아/어 보다' to talk about experience.", explanation: "'먹어 봤어요' is the past tense of '먹어 보다' (to try eating), used to express the experience of having eaten something." },
             { question: "How do you say 'You don't have to do your homework now'?", options: ["지금 숙제하면 안 돼요.", "지금 숙제하지 마세요.", "지금 숙제 안 해도 돼요.", "지금 숙제 못 해요."], answer: 2, hint: "📌 Hint: Use the '-지 않아도 되다' grammar.", explanation: "'안 해도 돼요' or '하지 않아도 돼요' means 'you don't have to do it'." }
         ];
-        const startScreen = document.getElementById('start-screen');
+        
         const quizScreen = document.getElementById('quiz-screen');
         const endScreen = document.getElementById('end-screen');
-        const startBtn = document.getElementById('start-btn');
         const restartBtn = document.getElementById('restart-btn');
         const questionCounter = document.getElementById('question-counter');
         const progressBar = document.getElementById('progress-bar');
@@ -123,24 +127,25 @@
         const feedbackModal = document.getElementById('feedback-modal');
         const feedbackTitle = document.getElementById('feedback-title');
         const feedbackText = document.getElementById('feedback-text');
-        const modalNextBtn = document.getElementById('modal-next-btn');
+        const modalBtn = document.getElementById('modal-btn');
 
         let currentQuestionIndex = 0;
         let score = 0;
         let shuffledQuestions = [];
+        let answeredCorrectly = false;
 
         function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
             shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
-            startScreen.classList.add('hidden');
-            endScreen.classList.add('hidden');
             quizScreen.classList.remove('hidden');
+            endScreen.classList.add('hidden');
             showQuestion();
         }
 
         function showQuestion() {
             resetState();
+            answeredCorrectly = false;
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const questionNumber = currentQuestionIndex + 1;
             progressBar.style.width = `${(questionNumber / shuffledQuestions.length) * 100}%`;
@@ -164,36 +169,56 @@
         }
 
         function selectAnswer(e) {
-            const selectedIndex = parseInt(e.currentTarget.dataset.index);
+            const selectedButton = e.currentTarget;
+            const selectedIndex = parseInt(selectedButton.dataset.index);
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const isCorrect = selectedIndex === currentQuestion.answer;
-            Array.from(optionsContainer.children).forEach(button => {
-                button.classList.add('disabled');
-            });
+
             if (isCorrect) {
-                score++;
+                if (!answeredCorrectly) {
+                    score++;
+                    answeredCorrectly = true;
+                }
+                
+                Array.from(optionsContainer.children).forEach(button => {
+                    button.classList.add('disabled');
+                });
+                selectedButton.classList.add('correct');
+                
                 showFeedback(true, `<strong>Correct!</strong><br><br>${currentQuestion.explanation}`);
+
             } else {
-                const incorrectAnswerText = currentQuestion.options[selectedIndex];
-                const correctAnswerText = currentQuestion.options[currentQuestion.answer];
-                const detailedExplanation = `Your answer, '${incorrectAnswerText}', was incorrect. The correct answer is '<strong>${correctAnswerText}</strong>'.<br><br><strong>Why:</strong> ${currentQuestion.explanation}`;
-                showFeedback(false, detailedExplanation);
+                selectedButton.classList.add('incorrect', 'disabled');
+                showFeedback(false, `<strong>Incorrect.</strong> Please try again.<br><br>${currentQuestion.explanation}`);
             }
         }
 
         function showFeedback(isCorrect, explanation) {
+            const modalBtn = document.getElementById('modal-btn');
+            
             if (isCorrect) {
                 feedbackTitle.innerText = "Correct! (정답!)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
-                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+                modalBtn.innerText = "Next Question";
+                modalBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+                modalBtn.onclick = handleNextQuestion;
             } else {
                 feedbackTitle.innerText = "Incorrect (오답)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-red-600";
-                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+                modalBtn.innerText = "Try Again (다시 시도)";
+                modalBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+                modalBtn.onclick = handleTryAgain;
             }
             feedbackText.innerHTML = explanation;
             feedbackModal.classList.remove('hidden');
             setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
+        }
+        
+        function handleTryAgain() {
+            feedbackModal.classList.add('opacity-0');
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+            }, 300);
         }
 
         function handleNextQuestion() {
@@ -217,16 +242,14 @@
             scorePercentage.innerText = `${percentage}% Correct`;
         }
 
-        startBtn.addEventListener('click', startQuiz);
-        modalNextBtn.addEventListener('click', handleNextQuestion);
-        restartBtn.addEventListener('click', () => {
-            endScreen.classList.add('hidden');
-            startScreen.classList.remove('hidden');
+        document.addEventListener('DOMContentLoaded', (event) => {
+            startQuiz();
         });
 
-        quizScreen.classList.add('hidden');
-        endScreen.classList.add('hidden');
-        feedbackModal.classList.add('hidden', 'opacity-0');
+        restartBtn.addEventListener('click', () => {
+            endScreen.classList.add('hidden');
+            startQuiz();
+        });
     </script>
 </body>
 </html>
