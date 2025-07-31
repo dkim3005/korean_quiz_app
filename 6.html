@@ -13,6 +13,16 @@
         .quiz-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .disabled { pointer-events: none; opacity: 0.7; }
         #progress-bar, #feedback-modal { transition: all 0.3s ease-in-out; }
+
+        /* ❗ 추가된 부분: 정답/오답 스타일 */
+        .correct {
+            background-color: #ecfdf5 !important;
+            border-color: #22c55e !important;
+        }
+        .incorrect {
+            background-color: #fff1f2 !important;
+            border-color: #ef4444 !important;
+        }
     </style>
 </head>
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
@@ -31,11 +41,6 @@
                 <div id="options-container" class="space-y-3"></div>
             </div>
         </div>
-        <div id="start-screen" class="text-center">
-            <h1 class="text-4xl md:text-5xl font-black text-gray-800">Final Korean Review</h1>
-            <p class="text-gray-600 mt-4 text-lg">Set 6: Comprehensive Review B</p>
-            <button id="start-btn" class="w-full max-w-sm mx-auto mt-8 bg-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-700 transition duration-300 text-xl shadow-lg">Start Quiz (50 Questions)</button>
-        </div>
         <div id="end-screen" class="hidden text-center bg-white rounded-2xl shadow-2xl p-8 md:p-10">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Set 6 Complete!</h1>
             <p class="text-gray-600 mt-2 text-xl">수고하셨습니다!</p>
@@ -51,13 +56,13 @@
         <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 text-center">
             <h2 id="feedback-title" class="text-2xl font-bold mb-2"></h2>
             <p id="feedback-text" class="text-gray-700 text-lg mb-6"></p>
-            <button id="modal-next-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
+            <button id="modal-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
         </div>
     </div>
     <script>
         const quizData = [
-            // Add 50 new questions for Set 6 here
-            { question: "How do you say 'from Seoul to Busan'?", options: ["서울에서 부산까지", "서울부터 부산으로", "서울하고 부산", "서울에서 부산으로"], answer: 0, hint: "📌 Hint: The structure 'A에서 B까지' means 'from A to B'.", explanation: "'서울에서 부산까지' is the correct pattern for 'from A to B'." },
+            // (문제 데이터는 동일)
+            { question: "How do you say 'from Seoul to Busan'?", options: ["서울에서 부산까지", "서울부터 부산으로", "서울하고 부산", "서울에서 부산으로"], answer: 0, hint: "📌 Hint: The structure 'A에서 B까지' means 'from A to B'.", explanation: "'서울에서 부산까지' is the correct pattern for 'from A to B'." },
             { question: "What does 'V-아/어 본 적이 있다' mean?", options: ["To plan to do V", "To have the experience of doing V", "To be good at doing V", "To be in the middle of doing V"], answer: 1, hint: "📌 Hint: This is another way to talk about past experiences, similar to '-아/어 보다'.", explanation: "This grammar pattern specifically means 'to have the experience of having done V'." },
             { question: "How do you say 'I have never seen a celebrity'?", options: ["연예인을 본 적이 없어요.", "연예인을 안 봤어요.", "연예인을 못 봤어요.", "연예인을 보지 않았어요."], answer: 0, hint: "📌 Hint: Use the negative form, 'V-아/어 본 적이 없다'.", explanation: "'본 적이 없어요' means 'to have never had the experience of seeing'." },
             { question: "How do you say 'Please take off your shoes'?", options: ["신발을 신으세요.", "신발을 벗어 주세요.", "신발을 입으세요.", "신발을 잃어버렸어요."], answer: 1, hint: "📌 Hint: '벗다' means 'to take off' (for clothes, shoes).", explanation: "'벗어 주세요' is a polite request to take off shoes." },
@@ -108,10 +113,9 @@
             { question: "How do you say 'Please wait a moment while I'm on the phone'?", options: ["제가 전화하는 동안 잠깐만 기다려 주세요.", "제가 전화하니까 잠깐만 기다려 주세요.", "제가 전화하면 잠깐만 기다려 주세요.", "제가 전화하고 잠깐만 기다려 주세요."], answer: 0, hint: "📌 Hint: Use '-는 동안'.", explanation: "'전화하는 동안' means 'while I am on the phone'." },
             { question: "How do you say 'It depends on the weather'?", options: ["날씨에 따라 달라요.", "날씨 같아요.", "날씨 때문에 같아요.", "날씨하고 달라요."], answer: 0, hint: "📌 Hint: The grammar 'N에 따라 다르다' means 'it depends on N'.", explanation: "'날씨에 따라 달라요' is the correct set phrase." }
         ];
-        const startScreen = document.getElementById('start-screen');
+
         const quizScreen = document.getElementById('quiz-screen');
         const endScreen = document.getElementById('end-screen');
-        const startBtn = document.getElementById('start-btn');
         const restartBtn = document.getElementById('restart-btn');
         const questionCounter = document.getElementById('question-counter');
         const progressBar = document.getElementById('progress-bar');
@@ -123,24 +127,27 @@
         const feedbackModal = document.getElementById('feedback-modal');
         const feedbackTitle = document.getElementById('feedback-title');
         const feedbackText = document.getElementById('feedback-text');
-        const modalNextBtn = document.getElementById('modal-next-btn');
+        const modalBtn = document.getElementById('modal-btn');
 
         let currentQuestionIndex = 0;
         let score = 0;
         let shuffledQuestions = [];
+        // ❗ 추가된 부분: 첫 정답 여부 확인용 변수
+        let answeredCorrectly = false;
 
         function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
             shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
-            startScreen.classList.add('hidden');
-            endScreen.classList.add('hidden');
             quizScreen.classList.remove('hidden');
+            endScreen.classList.add('hidden');
             showQuestion();
         }
 
         function showQuestion() {
             resetState();
+            // ❗ 추가된 부분: 새 문제마다 정답 여부 초기화
+            answeredCorrectly = false;
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const questionNumber = currentQuestionIndex + 1;
             progressBar.style.width = `${(questionNumber / shuffledQuestions.length) * 100}%`;
@@ -163,37 +170,59 @@
             }
         }
 
+        // ❗ 수정된 부분: Set 4/5의 향상된 로직 적용
         function selectAnswer(e) {
-            const selectedIndex = parseInt(e.currentTarget.dataset.index);
+            const selectedButton = e.currentTarget;
+            const selectedIndex = parseInt(selectedButton.dataset.index);
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const isCorrect = selectedIndex === currentQuestion.answer;
-            Array.from(optionsContainer.children).forEach(button => {
-                button.classList.add('disabled');
-            });
+
             if (isCorrect) {
-                score++;
+                if (!answeredCorrectly) {
+                    score++;
+                    answeredCorrectly = true;
+                }
+                
+                Array.from(optionsContainer.children).forEach(button => {
+                    button.classList.add('disabled');
+                });
+                selectedButton.classList.add('correct');
+                
                 showFeedback(true, `<strong>Correct!</strong><br><br>${currentQuestion.explanation}`);
+
             } else {
-                const incorrectAnswerText = currentQuestion.options[selectedIndex];
-                const correctAnswerText = currentQuestion.options[currentQuestion.answer];
-                const detailedExplanation = `Your answer, '${incorrectAnswerText}', was incorrect. The correct answer is '<strong>${correctAnswerText}</strong>'.<br><br><strong>Why:</strong> ${currentQuestion.explanation}`;
+                selectedButton.classList.add('incorrect', 'disabled');
+                const detailedExplanation = `That's not quite right. Try another option!<br><br><strong>Explanation for Correct Answer:</strong> ${currentQuestion.explanation}`;
                 showFeedback(false, detailedExplanation);
             }
         }
-
+        
+        // ❗ 수정된 부분: Set 4/5와 동일한 피드백 로직 적용
         function showFeedback(isCorrect, explanation) {
             if (isCorrect) {
                 feedbackTitle.innerText = "Correct! (정답!)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
-                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+                modalBtn.innerText = "Next Question";
+                modalBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+                modalBtn.onclick = handleNextQuestion;
             } else {
                 feedbackTitle.innerText = "Incorrect (오답)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-red-600";
-                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+                modalBtn.innerText = "Try Again (다시 시도)";
+                modalBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+                modalBtn.onclick = handleTryAgain;
             }
             feedbackText.innerHTML = explanation;
             feedbackModal.classList.remove('hidden');
             setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
+        }
+        
+        // ❗ 추가된 부분: '다시 시도' 버튼 클릭 시 모달만 닫는 함수
+        function handleTryAgain() {
+            feedbackModal.classList.add('opacity-0');
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+            }, 300);
         }
 
         function handleNextQuestion() {
@@ -217,16 +246,10 @@
             scorePercentage.innerText = `${percentage}% Correct`;
         }
 
-        startBtn.addEventListener('click', startQuiz);
-        modalNextBtn.addEventListener('click', handleNextQuestion);
-        restartBtn.addEventListener('click', () => {
-            endScreen.classList.add('hidden');
-            startScreen.classList.remove('hidden');
-        });
+        // ❗ 수정된 부분: 페이지 로딩 시 퀴즈 자동 시작
+        document.addEventListener('DOMContentLoaded', startQuiz);
+        restartBtn.addEventListener('click', startQuiz);
 
-        quizScreen.classList.add('hidden');
-        endScreen.classList.add('hidden');
-        feedbackModal.classList.add('hidden', 'opacity-0');
     </script>
 </body>
 </html>
