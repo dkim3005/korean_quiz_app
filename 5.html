@@ -180,17 +180,47 @@
                 showFeedback(false, detailedExplanation);
             }
         }
-
+        
+        function retryQuestion() {
+            // 1. 피드백 창을 숨깁니다.
+            feedbackModal.classList.add('opacity-0');
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+            }, 300);
+        
+            // 2. 비활성화되었던 선택지 버튼들을 다시 활성화시킵니다.
+            Array.from(optionsContainer.children).forEach(button => {
+                button.classList.remove('disabled');
+            });
+        }
+        
         function showFeedback(isCorrect, explanation) {
+            // 버튼에 이전에 연결된 이벤트 리스너를 제거하기 위해 버튼을 복제해서 교체합니다.
+            const newModalBtn = modalNextBtn.cloneNode(true);
+            modalNextBtn.parentNode.replaceChild(newModalBtn, modalNextBtn);
+            modalNextBtn = newModalBtn; // 새로 만든 버튼을 이제부터 사용합니다.
+        
             if (isCorrect) {
+                // 정답일 경우
                 feedbackTitle.innerText = "Correct! (정답!)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
+                modalNextBtn.innerText = "Next Question"; // 버튼 텍스트
                 modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+                
+                // 버튼 클릭 시 다음 문제로 넘어가는 함수를 연결
+                modalNextBtn.addEventListener('click', handleNextQuestion);
+        
             } else {
+                // 오답일 경우
                 feedbackTitle.innerText = "Incorrect (오답)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-red-600";
+                modalNextBtn.innerText = "Try Again (다시 풀기)"; // 버튼 텍스트 변경
                 modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+                
+                // 버튼 클릭 시 1단계에서 만든 '다시 풀기' 함수를 연결
+                modalNextBtn.addEventListener('click', retryQuestion);
             }
+            
             feedbackText.innerHTML = explanation;
             feedbackModal.classList.remove('hidden');
             setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
@@ -218,7 +248,7 @@
         }
 
         startBtn.addEventListener('click', startQuiz);
-        modalNextBtn.addEventListener('click', handleNextQuestion);
+        // modalNextBtn.addEventListener('click', handleNextQuestion);
         restartBtn.addEventListener('click', () => {
             endScreen.classList.add('hidden');
             startScreen.classList.remove('hidden');
