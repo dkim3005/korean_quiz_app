@@ -56,7 +56,7 @@
     </div>
     <script>
         const quizData = [
-            // Add 50 new questions for Set 5 here
+            // (문제 데이터는 동일하므로 생략)
             { question: "Choose the correct particle: '케이크___ 만들었어요.' (I made a cake.)", options: ["가", "를", "는", "에"], answer: 1, hint: "📌 Hint: 'Cake' is the direct object of the verb 'to make'.", explanation: "'를' is the object particle used after a noun ending in a vowel." },
             { question: "How do you say 'The library is quiet'?", options: ["도서관이 조용해요.", "도서관에서 조용해요.", "도서관은 조용해요.", "A and C are correct"], answer: 3, hint: "📌 Hint: Both the subject particle '이/가' and topic particle '은/는' can be used with descriptive verbs.", explanation: "Both are correct. '이' simply states the fact. '은' presents 'the library' as the topic and can carry a nuance of contrast (e.g., the library is quiet, but the park is noisy)." },
             { question: "What is the past tense of '짓다' (to build)?", options: ["지었어요", "짓었어요", "지웠어요", "졌어요"], answer: 0, hint: "📌 Hint: This is a 'ㅅ' irregular verb. The 'ㅅ' disappears before a vowel.", explanation: "'지었어요' is correct. The 'ㅅ' from the stem '짓-' is dropped before adding '-었어요'." },
@@ -108,6 +108,7 @@
             { question: "How do you say 'Among these, what is the best?'?", options: ["이 중에서 뭐가 제일 좋아요?", "이 중에서 뭐가 더 좋아요?", "이 중에서 뭐가 좋아요?", "이 중에서 뭐 같아요?"], answer: 0, hint: "📌 Hint: '이 중에서' means 'among these', and '제일' means 'the most' or 'best'.", explanation: "'이 중에서 뭐가 제일 좋아요?' is the correct way to ask 'What is the best among these options?'." },
             { question: "How do you say 'I will either watch a movie or read a book'?", options: ["영화를 보고 책을 읽을 거예요.", "영화나 책을 볼 거예요.", "영화를 보거나 책을 읽을 거예요.", "영화하고 책을 볼 거예요."], answer: 2, hint: "📌 Hint: To connect two verb choices with 'or', you use '-거나'.", explanation: "'-거나' is the grammar used to connect two or more verbs or adjectives with 'or'." }
         ];
+
         const startScreen = document.getElementById('start-screen');
         const quizScreen = document.getElementById('quiz-screen');
         const endScreen = document.getElementById('end-screen');
@@ -123,7 +124,10 @@
         const feedbackModal = document.getElementById('feedback-modal');
         const feedbackTitle = document.getElementById('feedback-title');
         const feedbackText = document.getElementById('feedback-text');
-        const modalNextBtn = document.getElementById('modal-next-btn');
+        
+        // ❗ 수정된 부분: const -> let
+        // 변수에 새로운 값을 다시 할당해야 하므로 let으로 변경합니다.
+        let modalNextBtn = document.getElementById('modal-next-btn');
 
         let currentQuestionIndex = 0;
         let score = 0;
@@ -182,42 +186,32 @@
         }
         
         function retryQuestion() {
-            // 1. 피드백 창을 숨깁니다.
             feedbackModal.classList.add('opacity-0');
             setTimeout(() => {
                 feedbackModal.classList.add('hidden');
             }, 300);
-        
-            // 2. 비활성화되었던 선택지 버튼들을 다시 활성화시킵니다.
+            
             Array.from(optionsContainer.children).forEach(button => {
                 button.classList.remove('disabled');
             });
         }
         
         function showFeedback(isCorrect, explanation) {
-            // 버튼에 이전에 연결된 이벤트 리스너를 제거하기 위해 버튼을 복제해서 교체합니다.
             const newModalBtn = modalNextBtn.cloneNode(true);
             modalNextBtn.parentNode.replaceChild(newModalBtn, modalNextBtn);
-            modalNextBtn = newModalBtn; // 새로 만든 버튼을 이제부터 사용합니다.
+            modalNextBtn = newModalBtn;
         
             if (isCorrect) {
-                // 정답일 경우
                 feedbackTitle.innerText = "Correct! (정답!)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
-                modalNextBtn.innerText = "Next Question"; // 버튼 텍스트
+                modalNextBtn.innerText = "Next Question";
                 modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
-                
-                // 버튼 클릭 시 다음 문제로 넘어가는 함수를 연결
                 modalNextBtn.addEventListener('click', handleNextQuestion);
-        
             } else {
-                // 오답일 경우
                 feedbackTitle.innerText = "Incorrect (오답)";
                 feedbackTitle.className = "text-2xl font-bold mb-2 text-red-600";
-                modalNextBtn.innerText = "Try Again (다시 풀기)"; // 버튼 텍스트 변경
+                modalNextBtn.innerText = "Try Again (다시 풀기)";
                 modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
-                
-                // 버튼 클릭 시 1단계에서 만든 '다시 풀기' 함수를 연결
                 modalNextBtn.addEventListener('click', retryQuestion);
             }
             
@@ -247,17 +241,12 @@
             scorePercentage.innerText = `${percentage}% Correct`;
         }
 
-        startBtn.addEventListener('click', startQuiz);
-        // modalNextBtn.addEventListener('click', handleNextQuestion);
-        restartBtn.addEventListener('click', () => {
-            endScreen.classList.add('hidden');
-            startScreen.classList.remove('hidden');
-        });
+        // ❗ 수정된 부분: 불필요한 이벤트 리스너 제거
+        // startBtn.addEventListener('click', startQuiz);
+        
+        // ❗ 수정된 부분: 재시작 로직을 startQuiz 함수 호출로 직접 변경
+        restartBtn.addEventListener('click', startQuiz);
 
-        quizScreen.classList.add('hidden');
-        endScreen.classList.add('hidden');
-        feedbackModal.classList.add('hidden', 'opacity-0');
+        // 페이지 로딩 시 바로 퀴즈 시작
         startQuiz();
     </script>
-</body>
-</html>
