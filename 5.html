@@ -31,7 +31,7 @@
                 <div id="options-container" class="space-y-3"></div>
             </div>
         </div>
-        <div id="start-screen" class="text-center">
+        <div id="start-screen" class="text-center hidden">
             <h1 class="text-4xl md:text-5xl font-black text-gray-800">Final Korean Review</h1>
             <p class="text-gray-600 mt-4 text-lg">Set 5: Comprehensive Review A</p>
             <button id="start-btn" class="w-full max-w-sm mx-auto mt-8 bg-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-700 transition duration-300 text-xl shadow-lg">Start Quiz (50 Questions)</button>
@@ -227,6 +227,7 @@
         quizScreen.classList.add('hidden');
         endScreen.classList.add('hidden');
         feedbackModal.classList.add('hidden', 'opacity-0');
+        startQuiz();
     </script>
 </body>
 </html>
