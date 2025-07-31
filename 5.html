@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final Korean Review - Set 5</title>
+    <title>Final Korean Review - Set 5 (Improved)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +13,16 @@
         .quiz-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .disabled { pointer-events: none; opacity: 0.7; }
         #progress-bar, #feedback-modal { transition: all 0.3s ease-in-out; }
+
+        /* ❗ 추가된 부분: Set 4의 정답/오답 스타일 */
+        .correct {
+            background-color: #ecfdf5 !important;
+            border-color: #22c55e !important;
+        }
+        .incorrect {
+            background-color: #fff1f2 !important;
+            border-color: #ef4444 !important;
+        }
     </style>
 </head>
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
@@ -31,11 +41,6 @@
                 <div id="options-container" class="space-y-3"></div>
             </div>
         </div>
-        <div id="start-screen" class="text-center hidden">
-            <h1 class="text-4xl md:text-5xl font-black text-gray-800">Final Korean Review</h1>
-            <p class="text-gray-600 mt-4 text-lg">Set 5: Comprehensive Review A</p>
-            <button id="start-btn" class="w-full max-w-sm mx-auto mt-8 bg-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-700 transition duration-300 text-xl shadow-lg">Start Quiz (50 Questions)</button>
-        </div>
         <div id="end-screen" class="hidden text-center bg-white rounded-2xl shadow-2xl p-8 md:p-10">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Set 5 Complete!</h1>
             <p class="text-gray-600 mt-2 text-xl">수고하셨습니다!</p>
@@ -51,12 +56,12 @@
         <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 text-center">
             <h2 id="feedback-title" class="text-2xl font-bold mb-2"></h2>
             <p id="feedback-text" class="text-gray-700 text-lg mb-6"></p>
-            <button id="modal-next-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
+            <button id="modal-btn" class="w-full text-white font-bold py-3 px-4 rounded-xl transition">Next Question</button>
         </div>
     </div>
     <script>
         const quizData = [
-            // (문제 데이터는 동일하므로 생략)
+            // (문제 데이터는 동일)
             { question: "Choose the correct particle: '케이크___ 만들었어요.' (I made a cake.)", options: ["가", "를", "는", "에"], answer: 1, hint: "📌 Hint: 'Cake' is the direct object of the verb 'to make'.", explanation: "'를' is the object particle used after a noun ending in a vowel." },
             { question: "How do you say 'The library is quiet'?", options: ["도서관이 조용해요.", "도서관에서 조용해요.", "도서관은 조용해요.", "A and C are correct"], answer: 3, hint: "📌 Hint: Both the subject particle '이/가' and topic particle '은/는' can be used with descriptive verbs.", explanation: "Both are correct. '이' simply states the fact. '은' presents 'the library' as the topic and can carry a nuance of contrast (e.g., the library is quiet, but the park is noisy)." },
             { question: "What is the past tense of '짓다' (to build)?", options: ["지었어요", "짓었어요", "지웠어요", "졌어요"], answer: 0, hint: "📌 Hint: This is a 'ㅅ' irregular verb. The 'ㅅ' disappears before a vowel.", explanation: "'지었어요' is correct. The 'ㅅ' from the stem '짓-' is dropped before adding '-었어요'." },
@@ -108,11 +113,9 @@
             { question: "How do you say 'Among these, what is the best?'?", options: ["이 중에서 뭐가 제일 좋아요?", "이 중에서 뭐가 더 좋아요?", "이 중에서 뭐가 좋아요?", "이 중에서 뭐 같아요?"], answer: 0, hint: "📌 Hint: '이 중에서' means 'among these', and '제일' means 'the most' or 'best'.", explanation: "'이 중에서 뭐가 제일 좋아요?' is the correct way to ask 'What is the best among these options?'." },
             { question: "How do you say 'I will either watch a movie or read a book'?", options: ["영화를 보고 책을 읽을 거예요.", "영화나 책을 볼 거예요.", "영화를 보거나 책을 읽을 거예요.", "영화하고 책을 볼 거예요."], answer: 2, hint: "📌 Hint: To connect two verb choices with 'or', you use '-거나'.", explanation: "'-거나' is the grammar used to connect two or more verbs or adjectives with 'or'." }
         ];
-
-        const startScreen = document.getElementById('start-screen');
+        
         const quizScreen = document.getElementById('quiz-screen');
         const endScreen = document.getElementById('end-screen');
-        const startBtn = document.getElementById('start-btn');
         const restartBtn = document.getElementById('restart-btn');
         const questionCounter = document.getElementById('question-counter');
         const progressBar = document.getElementById('progress-bar');
@@ -124,27 +127,27 @@
         const feedbackModal = document.getElementById('feedback-modal');
         const feedbackTitle = document.getElementById('feedback-title');
         const feedbackText = document.getElementById('feedback-text');
-        
-        // ❗ 수정된 부분: const -> let
-        // 변수에 새로운 값을 다시 할당해야 하므로 let으로 변경합니다.
-        let modalNextBtn = document.getElementById('modal-next-btn');
+        const modalBtn = document.getElementById('modal-btn');
 
         let currentQuestionIndex = 0;
         let score = 0;
         let shuffledQuestions = [];
+        // ❗ 추가된 부분: 첫 정답 여부 확인용 변수
+        let answeredCorrectly = false;
 
         function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
             shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
-            startScreen.classList.add('hidden');
-            endScreen.classList.add('hidden');
             quizScreen.classList.remove('hidden');
+            endScreen.classList.add('hidden');
             showQuestion();
         }
 
         function showQuestion() {
             resetState();
+            // ❗ 추가된 부분: 새 문제마다 정답 여부 초기화
+            answeredCorrectly = false; 
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const questionNumber = currentQuestionIndex + 1;
             progressBar.style.width = `${(questionNumber / shuffledQuestions.length) * 100}%`;
@@ -167,57 +170,62 @@
             }
         }
 
+        // ❗ 수정된 부분: Set 4의 정/오답 즉시 피드백 및 점수 로직 적용
         function selectAnswer(e) {
-            const selectedIndex = parseInt(e.currentTarget.dataset.index);
+            const selectedButton = e.currentTarget;
+            const selectedIndex = parseInt(selectedButton.dataset.index);
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const isCorrect = selectedIndex === currentQuestion.answer;
-            Array.from(optionsContainer.children).forEach(button => {
-                button.classList.add('disabled');
-            });
+
             if (isCorrect) {
-                score++;
+                // 첫 시도에 정답을 맞혔을 때만 점수 추가
+                if (!answeredCorrectly) {
+                    score++;
+                    answeredCorrectly = true;
+                }
+                
+                // 모든 버튼 비활성화 및 정답 표시
+                Array.from(optionsContainer.children).forEach(button => {
+                    button.classList.add('disabled');
+                });
+                selectedButton.classList.add('correct');
+                
                 showFeedback(true, `<strong>Correct!</strong><br><br>${currentQuestion.explanation}`);
+
             } else {
-                const incorrectAnswerText = currentQuestion.options[selectedIndex];
-                const correctAnswerText = currentQuestion.options[currentQuestion.answer];
-                const detailedExplanation = `Your answer, '${incorrectAnswerText}', was incorrect. The correct answer is '<strong>${correctAnswerText}</strong>'.<br><br><strong>Why:</strong> ${currentQuestion.explanation}`;
+                // 틀린 선택지만 비활성화 및 오답 표시
+                selectedButton.classList.add('incorrect', 'disabled');
+                const detailedExplanation = `That's not quite right. The correct answer is '<strong>${currentQuestion.options[currentQuestion.answer]}</strong>'.<br><br><strong>Why:</strong> ${currentQuestion.explanation}`;
                 showFeedback(false, detailedExplanation);
             }
         }
         
-        function retryQuestion() {
+        // ❗ 수정된 부분: Set 4와 동일한 피드백 로직 적용
+        function showFeedback(isCorrect, explanation) {
+            if (isCorrect) {
+                feedbackTitle.innerText = "Correct! (정답!)";
+                feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
+                modalBtn.innerText = "Next Question";
+                modalBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
+                modalBtn.onclick = handleNextQuestion;
+            } else {
+                feedbackTitle.innerText = "Incorrect (오답)";
+                feedbackTitle.className = "text-2xl font-bold mb-2 text-red-600";
+                modalBtn.innerText = "Try Again (다시 시도)";
+                modalBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
+                modalBtn.onclick = handleTryAgain;
+            }
+            feedbackText.innerHTML = explanation;
+            feedbackModal.classList.remove('hidden');
+            setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
+        }
+        
+        // ❗ 추가된 부분: '다시 시도' 버튼 클릭 시 모달만 닫는 함수
+        function handleTryAgain() {
             feedbackModal.classList.add('opacity-0');
             setTimeout(() => {
                 feedbackModal.classList.add('hidden');
             }, 300);
-            
-            Array.from(optionsContainer.children).forEach(button => {
-                button.classList.remove('disabled');
-            });
-        }
-        
-        function showFeedback(isCorrect, explanation) {
-            const newModalBtn = modalNextBtn.cloneNode(true);
-            modalNextBtn.parentNode.replaceChild(newModalBtn, modalNextBtn);
-            modalNextBtn = newModalBtn;
-        
-            if (isCorrect) {
-                feedbackTitle.innerText = "Correct! (정답!)";
-                feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
-                modalNextBtn.innerText = "Next Question";
-                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-green-600 hover:bg-green-700";
-                modalNextBtn.addEventListener('click', handleNextQuestion);
-            } else {
-                feedbackTitle.innerText = "Incorrect (오답)";
-                feedbackTitle.className = "text-2xl font-bold mb-2 text-red-600";
-                modalNextBtn.innerText = "Try Again (다시 풀기)";
-                modalNextBtn.className = "w-full text-white font-bold py-3 px-4 rounded-xl transition bg-red-600 hover:bg-red-700";
-                modalNextBtn.addEventListener('click', retryQuestion);
-            }
-            
-            feedbackText.innerHTML = explanation;
-            feedbackModal.classList.remove('hidden');
-            setTimeout(() => feedbackModal.classList.remove('opacity-0'), 10);
         }
 
         function handleNextQuestion() {
@@ -241,12 +249,10 @@
             scorePercentage.innerText = `${percentage}% Correct`;
         }
 
-        // ❗ 수정된 부분: 불필요한 이벤트 리스너 제거
-        // startBtn.addEventListener('click', startQuiz);
-        
-        // ❗ 수정된 부분: 재시작 로직을 startQuiz 함수 호출로 직접 변경
+        // 페이지가 완전히 로드되면 퀴즈 시작
+        document.addEventListener('DOMContentLoaded', startQuiz);
         restartBtn.addEventListener('click', startQuiz);
 
-        // 페이지 로딩 시 바로 퀴즈 시작
-        startQuiz();
     </script>
+</body>
+</html>
