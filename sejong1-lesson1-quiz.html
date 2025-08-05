@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 1 Quiz: Self-introduction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .answer-btn { transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+        .correct { background-color: #10B981 !important; color: white !important; border-color: #059669 !important; }
+        .incorrect { background-color: #EF4444 !important; color: white !important; border-color: #DC2626 !important; }
+        .question-container:not(:last-child) { border-bottom: 1px solid #e5e7eb; }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div class="container mx-auto px-4 py-12 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-black text-gray-800">Lesson 1 Quiz</h1>
+            <p class="text-gray-600 mt-2">Topic: Self-introduction</p>
+        </header>
+
+        <div id="quiz-container" class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg space-y-8">
+            </div>
+
+        <footer class="mt-8 text-center space-x-4">
+            <a href="./sejong1-lesson1-notes.html" class="bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition">Back to Notes</a>
+            <button onclick="location.reload()" class="bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-600 transition">Try Again</button>
+        </footer>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "What is '학생' in English?", answers: ["Teacher", "Student", "Doctor"], correct: "Student" },
+            { question: "What is 'Country' in Korean?", answers: ["이름", "사람", "나라"], correct: "나라" },
+            { question: "Choose the correct particle: 저___ 타나카입니다.", answers: ["는", "은", "이"], correct: "는" },
+            { question: "Choose the correct particle: 사람___ 많아요.", answers: ["는", "은", "이"], correct: "은" },
+            { question: "Choose the correct ending: 저는 학생___.", answers: ["이에요", "예요", "입니다"], correct: "이에요" },
+            { question: "Choose the correct ending: 저는 의사___.", answers: ["이에요", "예요", "입니다"], correct: "예요" },
+            { question: "'My name is Yuna.' in Korean is:", answers: ["저는 유나 씨입니다.", "제 이름은 유나입니다.", "유나는 이름입니다."], correct: "제 이름은 유나입니다." },
+            // Add more questions to reach 20
+            { question: "What is '선생님' in English?", answers: ["Office Worker", "Teacher", "Student"], correct: "Teacher" },
+            { question: "Choose the correct particle: 이것___ 책입니다.", answers: ["은", "는", "가"], correct: "은" },
+            { question: "Choose the correct ending: 아니요, 저___ 아니에요.", answers: ["이에요", "예요", "입니다"], correct: "예요" },
+            { question: "Which one means 'American'?", answers: ["한국 사람", "미국 나라", "미국 사람"], correct: "미국 사람" },
+            { question: "'A: 안녕하세요. B: ___'", answers: ["감사합니다.", "안녕하세요.", "미안합니다."], correct: "안녕하세요." },
+            { question: "What is '회사원' in English?", answers: ["Student", "Office Worker", "Name"], correct: "Office Worker" },
+            { question: "Choose the correct particle: 유나 씨___ 학생이에요?", answers: ["는", "은", "를"], correct: "는" },
+            { question: "Choose the correct ending: 이것은 제 이름___.", answers: ["예요", "이에요", "입니다"], correct: "이에요" },
+            { question: "'No, I am not a student.' in Korean is:", answers: ["네, 학생입니다.", "아니요, 학생이 아니에요.", "네, 학생이 아니에요."], correct: "아니요, 학생이 아니에요." },
+            { question: "What is '이름' in English?", answers: ["Person", "Country", "Name"], correct: "Name" },
+            { question: "Choose the correct particle: 선생님___ 한국 사람입니다.", answers: ["은", "는", "가"], correct: "은" },
+            { question: "Choose the correct ending: 마이클 씨___?", answers: ["예요", "이에요", "입니다"], correct: "예요" },
+            { question: "A: 어느 나라 사람이에요? B: ___", answers: ["저는 학생이에요.", "저는 한국 사람이에요.", "제 이름은 유나예요."], correct: "저는 한국 사람이에요." }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+
+        quizData.forEach((q, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-container py-6';
+            
+            let answerButtons = q.answers.map(answer => 
+                `<button class="answer-btn w-full text-left p-4 mt-2 border rounded-lg bg-slate-50 hover:bg-slate-100" onclick="checkAnswer(this, ${index})">${answer}</button>`
+            ).join('');
+
+            questionDiv.innerHTML = `
+                <p class="text-lg font-semibold text-gray-700">Q${index + 1}: ${q.question}</p>
+                <div class="answers mt-2" id="answers-${index}">${answerButtons}</div>
+            `;
+            quizContainer.appendChild(questionDiv);
+        });
+
+        function checkAnswer(button, qIndex) {
+            const isCorrect = button.textContent === quizData[qIndex].correct;
+            const answerButtons = document.getElementById(`answers-${qIndex}`).getElementsByTagName('button');
+
+            for (let btn of answerButtons) {
+                btn.disabled = true; // Disable all buttons for this question
+                if (btn.textContent === quizData[qIndex].correct) {
+                    btn.classList.add('correct');
+                } else {
+                    btn.classList.remove('hover:bg-slate-100');
+                }
+            }
+            
+            if (!isCorrect) {
+                button.classList.add('incorrect');
+            }
+        }
+    </script>
+</body>
+</html>
