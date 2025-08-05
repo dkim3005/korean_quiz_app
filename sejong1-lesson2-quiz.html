@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 2 Quiz: Daily Life</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .answer-btn.selected { border-color: #0d9488; background-color: #f0fdfa; }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+
+        <div id="view-quiz-home">
+            <header class="text-center mb-6">
+                <h1 class="text-4xl font-black text-gray-800">Lesson 2 Quiz</h1>
+                <p class="text-gray-600 mt-2">Topic: Daily Life</p>
+            </header>
+            <div id="result-summary" class="hidden mb-6 p-4 text-center font-bold text-xl bg-teal-100 text-teal-800 rounded-lg"></div>
+            <div id="question-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2 p-4 bg-white rounded-2xl shadow-lg"></div>
+            <div class="mt-6 text-center space-x-4">
+                <a href="./sejong1-lesson2-notes.html" class="bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition">Lesson Notes</a>
+                <button id="grade-btn" class="bg-teal-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-teal-600 transition">Grade My Answers</button>
+            </div>
+        </div>
+
+        <div id="view-question" class="hidden">
+             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl">
+                <div id="progress-container" class="mb-6">
+                    <p id="progress-text" class="text-sm font-semibold text-gray-500"></p>
+                </div>
+                <div id="quiz-content">
+                    <p id="question-text" class="text-xl sm:text-2xl font-bold text-gray-800"></p>
+                    <div id="answers-container" class="mt-6 space-y-3"></div>
+                </div>
+                <div id="feedback-box" class="hidden mt-6 p-4 rounded-lg"></div>
+            </div>
+            <nav class="mt-6 flex justify-between items-center">
+                <button id="prev-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">&lt;&lt; Prev</button>
+                <div>
+                    <a href="./sejong1-lesson2-notes.html" class="text-sm text-gray-500 mx-2 hover:underline">Lesson Notes</a>
+                    <button id="home-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">Quiz Home</button>
+                </div>
+                <button id="next-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">Next &gt;&gt;</button>
+            </nav>
+        </div>
+
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "What is '일하다' in English?", answers: ["to study", "to work", "to sleep"], correct: "to work", explanation: "'일하다' means 'to work'." },
+            { question: "What is '커피' in Korean?", answers: ["meal", "coffee", "water"], correct: "coffee", explanation: "'커피' is the Korean word for 'coffee'." },
+            { question: "Choose the correct ending: '저는 학교에 ___.'", answers: ["먹습니다", "잡니다", "갑니다"], correct: "갑니다", explanation: "'가다' (to go) becomes '갑니다' in the formal polite style." },
+            { question: "Choose the correct particle: '저는 밥___ 먹습니다.'", answers: ["을", "를", "에"], correct: "을", explanation: "Use the object particle '을' after a noun ending in a consonant, like '밥'." },
+            { question: "Choose the correct particle: '유나 씨는 커피___ 마십니다.'", answers: ["을", "를", "에서"], correct: "를", explanation: "Use the object particle '를' after a noun ending in a vowel, like '커피'." },
+            { question: "Choose the correct particle: '저는 집___ 갑니다.'", answers: ["을", "에서", "에"], correct: "에", explanation: "Use '에' to mark a destination with the verb '가다' (to go)." },
+            { question: "Choose the correct particle: '학생이 도서관___ 공부합니다.'", answers: ["에", "에서", "를"], correct: "에서", explanation: "Use '에서' to mark the location where an action (공부하다) takes place." },
+            { question: "What is the formal polite form of '마시다' (to drink)?", answers: ["마십니다", "마습니다", "마시습니다"], correct: "마십니다", explanation: "For verb stems ending in a vowel like '마시', add '-ㅂ니다' to form '마십니다'." },
+            { question: "What is '회사' in English?", answers: ["school", "library", "company"], correct: "company", explanation: "'회사' is the Korean word for 'company'." },
+            { question: "What is the formal polite form of '자다' (to sleep)?", answers: ["잡니다", "자습니다", "자다"], correct: "잡니다", explanation: "For verb stems ending in a vowel like '자', add '-ㅂ니다' to form '잡니다'." },
+            { question: "Choose the correct particle: '저는 회사___ 일합니다.'", answers: ["를", "에", "에서"], correct: "에서", explanation: "The action '일하다' (to work) happens at the company, so you use '에서'." },
+            { question: "What is 'to study' in Korean?", answers: ["일하다", "공부하다", "자다"], correct: "공부하다", explanation: "'공부하다' means 'to study'." },
+            { question: "Choose the correct particle: '책___ 읽습니다.' (I read a book.)", answers: ["을", "를", "에"], correct: "을", explanation: "'책' ends in a consonant, so the object particle is '을'." },
+            { question: "What is '집' in English?", answers: ["home", "school", "office"], correct: "home", explanation: "'집' is the Korean word for 'home'." },
+            { question: "A: 어디에 갑니까? B: '___에 갑니다.'", answers: ["도서관", "책", "커피"], correct: "도서관", explanation: "The question asks 'Where are you going?', so a place like '도서관' (library) is the correct answer." },
+            { question: "What is the formal polite form of '읽다' (to read)?", answers: ["읽습니다", "읽ㅂ니다", "읽니다"], correct: "읽습니다", explanation: "For verb stems ending in a consonant like '읽', add '-습니다' to form '읽습니다'." },
+            { question: "Choose the correct particle: '학교___ 운동합니다.' (I exercise at school.)", answers: ["에서", "에", "를"], correct: "에서", explanation: "The action '운동하다' (to exercise) happens at the school, so use '에서'." },
+            { question: "What is 'to eat' in Korean?", answers: ["마시다", "먹다", "자다"], correct: "먹다", explanation: "'먹다' is the Korean word for 'to eat'." },
+            { question: "Which sentence is correct?", answers: ["저는 도서관을 갑니다.", "저는 도서관에 갑니다.", "저는 도서관에서 갑니다."], correct: "저는 도서관에 갑니다.", explanation: "With '가다' (to go), the destination is marked with '에', not '을/를' or '에서'." },
+            { question: "A: 뭐 합니까? B: '___ 공부합니다.'", answers: ["도서관에서", "도서관에", "도서관을"], correct: "도서관에서", explanation: "The question asks what you are doing. The action '공부합니다' (study) happens IN a location, so '도서관에서' is correct." }
+        ];
+
+        // The rest of the script is the same template and does not need to be changed.
+        let userAnswers = new Array(quizData.length).fill(null);
+        let questionStatus = new Array(quizData.length).fill('unanswered');
+        let isGraded = false;
+
+        const viewHome = document.getElementById('view-quiz-home');
+        const viewQuestion = document.getElementById('view-question');
+        const questionGrid = document.getElementById('question-grid');
+        const gradeBtn = document.getElementById('grade-btn');
+        const summaryEl = document.getElementById('result-summary');
+        
+        const progressText = document.getElementById('progress-text');
+        const questionText = document.getElementById('question-text');
+        const answersContainer = document.getElementById('answers-container');
+        const feedbackBox = document.getElementById('feedback-box');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const homeBtn = document.getElementById('home-btn');
+
+        function showView(viewName) {
+            viewHome.classList.add('hidden');
+            viewQuestion.classList.add('hidden');
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+        }
+
+        function renderQuizHome() {
+            questionGrid.innerHTML = '';
+            for (let i = 0; i < quizData.length; i++) {
+                const button = document.createElement('button');
+                button.textContent = i + 1;
+                button.dataset.index = i;
+                let statusClass = 'bg-gray-200 hover:bg-gray-300 text-gray-700';
+                if (questionStatus[i] === 'answered') statusClass = 'bg-blue-500 hover:bg-blue-600 text-white';
+                if (questionStatus[i] === 'correct') statusClass = 'bg-green-500 hover:bg-green-600 text-white';
+                if (questionStatus[i] === 'incorrect') statusClass = 'bg-red-500 hover:bg-red-600 text-white';
+                button.className = `w-12 h-12 rounded-lg font-bold transition ${statusClass}`;
+                button.addEventListener('click', () => renderQuestionView(i));
+                questionGrid.appendChild(button);
+            }
+            showView('quiz-home');
+        }
+
+        function renderQuestionView(index) {
+            const q = quizData[index];
+            progressText.textContent = `Question ${index + 1} / ${quizData.length}`;
+            questionText.textContent = q.question;
+            answersContainer.innerHTML = '';
+            feedbackBox.classList.add('hidden');
+
+            q.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.textContent = answer;
+                button.className = 'w-full text-left p-4 mt-2 border-2 border-gray-200 rounded-lg hover:bg-slate-100 transition';
+                if (answer === userAnswers[index]) {
+                    button.classList.add('selected');
+                }
+                button.addEventListener('click', () => selectAnswer(index, answer));
+                answersContainer.appendChild(button);
+            });
+            
+            if(isGraded) {
+                showFeedback(index);
+            }
+
+            prevBtn.onclick = () => renderQuestionView(index - 1);
+            nextBtn.onclick = () => renderQuestionView(index + 1);
+            homeBtn.onclick = renderQuizHome;
+
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === quizData.length - 1;
+            
+            showView('question');
+        }
+
+        function selectAnswer(qIndex, answer) {
+            if (isGraded) return;
+            userAnswers[qIndex] = answer;
+            questionStatus[qIndex] = 'answered';
+            renderQuestionView(qIndex);
+        }
+
+        function showFeedback(index) {
+            const q = quizData[index];
+            const feedbackEl = document.getElementById('feedback-box');
+            const answerButtons = answersContainer.querySelectorAll('button');
+            const selectedAnswer = userAnswers[index];
+            const isCorrect = selectedAnswer === q.correct;
+
+            answerButtons.forEach(btn => {
+                btn.disabled = true;
+                let feedbackClass = '';
+                if (btn.textContent === q.correct) {
+                     feedbackClass = 'bg-green-50 border-green-500';
+                }
+                if (btn.textContent === selectedAnswer && !isCorrect) {
+                     feedbackClass = 'bg-red-50 border-red-500';
+                }
+                if (feedbackClass) btn.classList.add(...feedbackClass.split(' '));
+            });
+
+            feedbackEl.innerHTML = `<p class="font-bold">Explanation:</p><p>${q.explanation}</p>`;
+            feedbackEl.className = `feedback p-4 rounded-lg mt-6 ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`;
+            feedbackEl.classList.remove('hidden');
+        }
+
+        gradeBtn.addEventListener('click', () => {
+            isGraded = true;
+            let score = 0;
+            for (let i = 0; i < quizData.length; i++) {
+                if (userAnswers[i] === quizData[i].correct) {
+                    score++;
+                    questionStatus[i] = 'correct';
+                } else if (userAnswers[i] !== null) {
+                    questionStatus[i] = 'incorrect';
+                }
+            }
+            summaryEl.textContent = `Result: You got ${score} out of ${quizData.length} correct! Click a number to review.`;
+            summaryEl.classList.remove('hidden');
+            renderQuizHome();
+        });
+
+        // Initial Load
+        renderQuizHome();
+    </script>
+</body>
+</html>
