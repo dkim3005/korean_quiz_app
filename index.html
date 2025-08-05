@@ -43,16 +43,20 @@
                     </div>
                 </a>
 
-                <a href="https://youtube.com/playlist?list=PL6D-YTosvGYq4BSGSUZom6etXcXcAu2Ym&si=HHYGFXp_wEBdDyL-" target="_blank" class="video-link-card block bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div class="p-6">
+                <div class="video-link-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
                         <h3 class="text-xl font-bold text-gray-800 mb-2">Sejong Korean 1</h3>
                         <p class="text-gray-600 text-sm">Official video lessons for the Sejong Korean 1 textbook.</p>
                     </div>
-                    <div class="bg-blue-500 text-white font-bold text-center py-3">
-                        Watch on YouTube
+                    <div class="grid grid-cols-2">
+                        <a href="https://youtube.com/playlist?list=PL6D-YTosvGYq4BSGSUZom6etXcXcAu2Ym&si=HHYGFXp_wEBdDyL-" target="_blank" class="block bg-blue-100 text-blue-800 text-center font-bold py-3 hover:bg-blue-200 transition duration-300">
+                            Watch Video
+                        </a>
+                        <a href="./sejong1-main.html" class="block bg-blue-500 text-white text-center font-bold py-3 hover:bg-blue-600 transition duration-300">
+                            Self-study
+                        </a>
                     </div>
-                </a>
-
+                </div>
                 <a href="https://youtube.com/playlist?list=PL6D-YTosvGYqS-MBTama4zrwsMa3gwDEZ&si=qJTHmG869CgcuHrc" target="_blank" class="video-link-card block bg-white rounded-2xl shadow-lg overflow-hidden">
                     <div class="p-6">
                         <h3 class="text-xl font-bold text-gray-800 mb-2">Sejong Korean (General)</h3>
@@ -65,6 +69,7 @@
 
             </div>
         </section>
+        
         <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
                 <div class="p-8 flex-grow">
@@ -156,6 +161,7 @@
                 </div>
             </div>
         </main>
+        
         <footer class="text-center mt-12 text-gray-500">
             <p>&copy; 2025 Korean Language Quiz Portal. All rights reserved. Developed by Jay Kim. </p>
         </footer>
