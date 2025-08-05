@@ -8,7 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
-        .answer-btn.selected { border-color: #0d9488; background-color: #f0fdfa; }
+        .answer-btn.selected { border-color: #0d9488; background-color: #f0fdfa; font-weight: bold; }
+        /* A utility class to ensure smooth height transitions */
+        .smooth-transition { transition: all 0.3s ease-in-out; }
     </style>
 </head>
 <body class="bg-slate-100">
@@ -20,7 +22,8 @@
                 <p class="text-gray-600 mt-2">Topic: Daily Life</p>
             </header>
             <div id="result-summary" class="hidden mb-6 p-4 text-center font-bold text-xl bg-teal-100 text-teal-800 rounded-lg"></div>
-            <div id="question-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2 p-4 bg-white rounded-2xl shadow-lg"></div>
+            <div id="question-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2 p-4 bg-white rounded-2xl shadow-lg">
+                </div>
             <div class="mt-6 text-center space-x-4">
                 <a href="./sejong1-lesson2-notes.html" class="bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition">Lesson Notes</a>
                 <button id="grade-btn" class="bg-teal-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-teal-600 transition">Grade My Answers</button>
@@ -74,7 +77,6 @@
             { question: "A: 뭐 합니까? B: '___ 공부합니다.'", answers: ["도서관에서", "도서관에", "도서관을"], correct: "도서관에서", explanation: "The question asks what you are doing. The action '공부합니다' (study) happens IN a location, so '도서관에서' is correct." }
         ];
 
-        // The rest of the script is the same template and does not need to be changed.
         let userAnswers = new Array(quizData.length).fill(null);
         let questionStatus = new Array(quizData.length).fill('unanswered');
         let isGraded = false;
@@ -126,15 +128,15 @@
             q.answers.forEach(answer => {
                 const button = document.createElement('button');
                 button.textContent = answer;
-                button.className = 'w-full text-left p-4 mt-2 border-2 border-gray-200 rounded-lg hover:bg-slate-100 transition';
+                button.className = 'answer-btn w-full text-left p-4 mt-2 border-2 border-gray-200 rounded-lg hover:bg-slate-100 transition';
                 if (answer === userAnswers[index]) {
                     button.classList.add('selected');
                 }
-                button.addEventListener('click', () => selectAnswer(index, answer));
+                button.addEventListener('click', (event) => selectAnswer(index, answer, event.currentTarget));
                 answersContainer.appendChild(button);
             });
             
-            if(isGraded) {
+            if (isGraded) {
                 showFeedback(index);
             }
 
@@ -148,35 +150,39 @@
             showView('question');
         }
 
-        function selectAnswer(qIndex, answer) {
-            if (isGraded) return;
+        function selectAnswer(qIndex, answer, clickedButton) {
+            if (isGraded) return; // Cannot change answers after grading
+            
             userAnswers[qIndex] = answer;
             questionStatus[qIndex] = 'answered';
-            renderQuestionView(qIndex);
+            
+            // Efficiently update styles without redrawing the whole view
+            const answerButtons = answersContainer.querySelectorAll('.answer-btn');
+            answerButtons.forEach(btn => btn.classList.remove('selected'));
+            clickedButton.classList.add('selected');
         }
 
         function showFeedback(index) {
             const q = quizData[index];
-            const feedbackEl = document.getElementById('feedback-box');
-            const answerButtons = answersContainer.querySelectorAll('button');
             const selectedAnswer = userAnswers[index];
             const isCorrect = selectedAnswer === q.correct;
-
-            answerButtons.forEach(btn => {
+            
+            answersContainer.querySelectorAll('.answer-btn').forEach(btn => {
                 btn.disabled = true;
-                let feedbackClass = '';
-                if (btn.textContent === q.correct) {
-                     feedbackClass = 'bg-green-50 border-green-500';
+                const isCorrectAnswer = btn.textContent === q.correct;
+                const isSelectedAnswer = btn.textContent === selectedAnswer;
+
+                if (isCorrectAnswer) {
+                    btn.classList.add('bg-green-50', 'border-green-500');
                 }
-                if (btn.textContent === selectedAnswer && !isCorrect) {
-                     feedbackClass = 'bg-red-50 border-red-500';
+                if (isSelectedAnswer && !isCorrect) {
+                    btn.classList.add('bg-red-50', 'border-red-500');
                 }
-                if (feedbackClass) btn.classList.add(...feedbackClass.split(' '));
             });
 
-            feedbackEl.innerHTML = `<p class="font-bold">Explanation:</p><p>${q.explanation}</p>`;
-            feedbackEl.className = `feedback p-4 rounded-lg mt-6 ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`;
-            feedbackEl.classList.remove('hidden');
+            feedbackBox.innerHTML = `<p class="font-bold">Explanation:</p><p>${q.explanation}</p>`;
+            feedbackBox.className = `feedback p-4 rounded-lg mt-6 smooth-transition ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`;
+            feedbackBox.classList.remove('hidden');
         }
 
         gradeBtn.addEventListener('click', () => {
@@ -186,13 +192,14 @@
                 if (userAnswers[i] === quizData[i].correct) {
                     score++;
                     questionStatus[i] = 'correct';
-                } else if (userAnswers[i] !== null) {
+                } else if (userAnswers[i] !== null) { // if answered
                     questionStatus[i] = 'incorrect';
                 }
             }
             summaryEl.textContent = `Result: You got ${score} out of ${quizData.length} correct! Click a number to review.`;
             summaryEl.classList.remove('hidden');
             renderQuizHome();
+            gradeBtn.disabled = true;
         });
 
         // Initial Load
