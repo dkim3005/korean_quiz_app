@@ -8,172 +8,193 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
-        .answer-btn { transition: all 0.2s; }
         .answer-btn.selected { border-color: #3b82f6; background-color: #eff6ff; }
-        .answer-btn.correct { border-color: #10B981; background-color: #ecfdf5; color: #065f46; font-weight: bold; }
-        .answer-btn.incorrect { border-color: #EF4444; background-color: #fef2f2; color: #991b1b; }
-        #feedback-box { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 flex items-center justify-center min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-2xl">
-        <div id="quiz-wrapper" class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl">
-            <div id="progress-container" class="mb-6">
-                <p id="progress-text" class="text-sm font-semibold text-gray-500 text-center"></p>
-                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                    <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"></div>
+<body class="bg-slate-100">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+
+        <div id="view-quiz-home">
+            <header class="text-center mb-6">
+                <h1 class="text-4xl font-black text-gray-800">Lesson 1 Quiz</h1>
+                <p class="text-gray-600 mt-2">Click a number to start, or grade your answers.</p>
+            </header>
+            <div id="result-summary" class="hidden mb-6 p-4 text-center font-bold text-xl bg-blue-100 text-blue-800 rounded-lg"></div>
+            <div id="question-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2 p-4 bg-white rounded-2xl shadow-lg">
                 </div>
-            </div>
-
-            <div id="quiz-content">
-                <p id="question-text" class="text-xl sm:text-2xl font-bold text-gray-800 text-center"></p>
-                <div id="answers-container" class="mt-8 space-y-3"></div>
-            </div>
-            
-            <div id="feedback-box" class="mt-6 p-4 rounded-lg">
-                <p id="feedback-title" class="font-bold"></p>
-                <p id="feedback-text" class="mt-1 text-sm"></p>
-            </div>
-
-            <div class="mt-8 pt-6 border-t border-gray-200 text-center">
-                <button id="check-btn" class="w-full bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-600 transition">Check</button>
-                <button id="next-btn" class="w-full bg-green-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600 transition hidden">Next</button>
+            <div class="mt-6 text-center space-x-4">
+                <a href="./sejong1-lesson1-notes.html" class="bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition">Lesson Notes</a>
+                <button id="grade-btn" class="bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-600 transition">Grade My Answers</button>
             </div>
         </div>
-        <footer class="mt-6 text-center">
-            <a href="./sejong1-lesson1-notes.html" class="text-sm text-gray-500 hover:text-gray-700">Back to Lesson Notes</a>
-        </footer>
+
+        <div id="view-question" class="hidden">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl">
+                <div id="progress-container" class="mb-6">
+                    <p id="progress-text" class="text-sm font-semibold text-gray-500"></p>
+                </div>
+                <div id="quiz-content">
+                    <p id="question-text" class="text-xl sm:text-2xl font-bold text-gray-800"></p>
+                    <div id="answers-container" class="mt-6 space-y-3"></div>
+                </div>
+                <div id="feedback-box" class="hidden mt-6 p-4 rounded-lg"></div>
+            </div>
+            <nav class="mt-6 flex justify-between items-center">
+                <button id="prev-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">&lt;&lt; Prev</button>
+                <div>
+                    <a href="./sejong1-lesson1-notes.html" class="text-sm text-gray-500 mx-2 hover:underline">Lesson Notes</a>
+                    <button id="home-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">Quiz Home</button>
+                </div>
+                <button id="next-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">Next &gt;&gt;</button>
+            </nav>
+        </div>
+
     </div>
 
     <script>
         const quizData = [
-            { question: "What is '학생' in English?", answers: ["Teacher", "Student", "Doctor"], correct: "Student", hint: "It's a person who studies at a school.", explanation: "'학생' means 'Student'. Great job!" },
-            { question: "What is 'Country' in Korean?", answers: ["이름", "사람", "나라"], correct: "나라", hint: "You ask '어느 ___ 사람이에요?' to ask about nationality.", explanation: "'나라' means 'Country'. You got it!" },
-            { question: "Choose the correct particle: 저___ 타나카입니다.", answers: ["는", "은", "이"], correct: "는", hint: "Does '저' end with a vowel or a consonant?", explanation: "Correct! Use '는' after a noun ending in a vowel, like '저'." },
-            { question: "Choose the correct particle: 이 사람___ 학생입니다.", answers: ["는", "은", "를"], correct: "은", hint: "Does '사람' end with a vowel or a consonant?", explanation: "Perfect! Use '은' after a noun ending in a consonant, like '사람'." },
-            { question: "Choose the correct ending: 저는 회사원___.", answers: ["이에요", "예요", "입니다"], correct: "이에요", hint: "Look at the last letter of '회사원'. Is it a vowel or a consonant?", explanation: "Excellent! Use '이에요' after a noun ending in a consonant, like '회사원'." },
-            { question: "Choose the correct ending: 저는 의사___.", answers: ["이에요", "예요", "에서"], correct: "예요", hint: "Look at the last letter of '의사'. Is it a vowel or a consonant?", explanation: "That's right! Use '예요' after a noun ending in a vowel, like '의사'." },
-            { question: "'My name is Yuna.' in Korean is:", answers: ["저는 유나 씨입니다.", "제 이름은 유나입니다.", "유나는 이름입니다."], correct: "제 이름은 유나입니다.", hint: "Think about the phrase for 'My name is...'", explanation: "'제 이름은' means 'My name is'. '유나입니다' correctly states the name." }
-            // To keep it concise, this example has 7 questions. The original 20 can be added here following the same structure.
+            { question: "What is '학생' in English?", answers: ["Teacher", "Student", "Doctor"], correct: "Student", explanation: "'학생' means 'Student' in English." },
+            { question: "What is 'Country' in Korean?", answers: ["이름", "사람", "나라"], correct: "나라", explanation: "'나라' is the Korean word for 'Country'." },
+            { question: "Choose the correct particle: 저___ 타나카입니다.", answers: ["는", "은", "이"], correct: "는", explanation: "Use '는' after a noun ending in a vowel, like '저'." },
+            { question: "Choose the correct particle: 이 사람___ 학생입니다.", answers: ["는", "은", "를"], correct: "은", explanation: "Use '은' after a noun ending in a consonant, like '사람'." },
+            { question: "Choose the correct ending: 저는 회사원___.", answers: ["이에요", "예요", "입니다"], correct: "이에요", explanation: "Use '이에요' after a noun ending in a consonant, like '회사원'." },
+            { question: "Choose the correct ending: 저는 의사___.", answers: ["이에요", "예요", "에서"], correct: "예요", explanation: "Use '예요' after a noun ending in a vowel, like '의사'." },
+            { question: "Which one means 'American'?", answers: ["한국 사람", "미국 나라", "미국 사람"], correct: "미국 사람", explanation: "'미국' is America, and '사람' is person. So, '미국 사람' is an American person." },
+            { question: "What is the meaning of '아니요'?", answers: ["Yes", "Hello", "No"], correct: "No", explanation: "'아니요' means 'No', used to give a negative answer." },
+            { question: "Which particle is the topic marker?", answers: ["이/가", "을/를", "은/는"], correct: "은/는", explanation: "'은/는' is attached to a noun to mark it as the topic of the sentence." },
+            { question: "'A: 이름이 뭐예요? B: ___'", answers: ["저는 학생이에요.", "저는 마이클이에요.", "저는 미국 사람이에요."], correct: "저는 마이클이에요.", explanation: "The question asks for a name, so stating your name is the correct response." },
+            { question: "What is '선생님' in English?", answers: ["Office Worker", "Teacher", "Student"], correct: "Teacher", explanation: "'선생님' means 'Teacher'." },
+            { question: "Choose the correct particle: 이것___ 책입니다.", answers: ["은", "는", "가"], correct: "은", explanation: "Use '은' after a noun ending in a consonant, like '이것'." },
+            { question: "What is the polite form of 'to be' for '물' (water)?", answers: ["물이에요", "물이예요", "물는"], correct: "물이에요", explanation: "'물' ends in a consonant, so you add '이에요'." },
+            { question: "How do you say 'Yes' in Korean?", answers: ["네", "아니요", "뭐"], correct: "네", explanation: "'네' is the standard polite way to say 'Yes'." },
+            { question: "'No, I am not a student.' in Korean is:", answers: ["네, 학생입니다.", "아니요, 학생이 아니에요.", "네, 학생이 아니에요."], correct: "아니요, 학생이 아니에요.", explanation: "'아니요' means 'No', and '학생이 아니에요' is the correct negative form." },
+            { question: "What is '이름' in English?", answers: ["Person", "Country", "Name"], correct: "Name", explanation: "'이름' means 'Name'." },
+            { question: "Choose the correct particle: 선생님___ 한국 사람입니다.", answers: ["은", "는", "가"], correct: "은", explanation: "Use '은' after a noun ending in a consonant, like '선생님'." },
+            { question: "What is the polite form of 'to be' for '사과' (apple)?", answers: ["사과은", "사과예요", "사과이에요"], correct: "사과예요", explanation: "'사과' ends in a vowel, so you add '예요'." },
+            { question: "Which word means 'person'?", answers: ["나라", "사람", "이름"], correct: "사람", explanation: "'사람' is the Korean word for 'person'." },
+            { question: "A: 어느 나라 사람이에요? B: ___", answers: ["저는 학생이에요.", "저는 한국 사람이에요.", "제 이름은 유나예요."], correct: "저는 한국 사람이에요.", explanation: "The question asks for nationality, so '저는 한국 사람이에요' (I am Korean) is the correct answer." }
         ];
 
-        let currentQuestionIndex = 0;
-        let selectedAnswer = null;
-        let attempts = 0;
-        let score = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let questionStatus = new Array(quizData.length).fill('unanswered'); // 'unanswered', 'answered', 'correct', 'incorrect'
+        let isGraded = false;
 
-        const quizWrapper = document.getElementById('quiz-wrapper');
+        const viewHome = document.getElementById('view-quiz-home');
+        const viewQuestion = document.getElementById('view-question');
+        const questionGrid = document.getElementById('question-grid');
+        const gradeBtn = document.getElementById('grade-btn');
+        const summaryEl = document.getElementById('result-summary');
+        
+        const progressText = document.getElementById('progress-text');
         const questionText = document.getElementById('question-text');
         const answersContainer = document.getElementById('answers-container');
-        const checkBtn = document.getElementById('check-btn');
-        const nextBtn = document.getElementById('next-btn');
         const feedbackBox = document.getElementById('feedback-box');
-        const feedbackTitle = document.getElementById('feedback-title');
-        const feedbackText = document.getElementById('feedback-text');
-        const progressText = document.getElementById('progress-text');
-        const progressBar = document.getElementById('progress-bar');
-        
-        function loadQuestion() {
-            // Reset state
-            selectedAnswer = null;
-            attempts = 0;
-            answersContainer.innerHTML = '';
-            feedbackBox.style.display = 'none';
-            checkBtn.disabled = true;
-            checkBtn.classList.remove('hidden');
-            nextBtn.classList.add('hidden');
-            
-            // Update Progress
-            progressText.textContent = `Question ${currentQuestionIndex + 1} / ${quizData.length}`;
-            progressBar.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const homeBtn = document.getElementById('home-btn');
 
-            // Load new question
-            const q = quizData[currentQuestionIndex];
+        function showView(viewName) {
+            viewHome.classList.add('hidden');
+            viewQuestion.classList.add('hidden');
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+        }
+
+        function renderQuizHome() {
+            questionGrid.innerHTML = '';
+            for (let i = 0; i < quizData.length; i++) {
+                const button = document.createElement('button');
+                button.textContent = i + 1;
+                button.dataset.index = i;
+                let statusClass = 'bg-gray-200 hover:bg-gray-300 text-gray-700';
+                if (questionStatus[i] === 'answered') statusClass = 'bg-blue-500 hover:bg-blue-600 text-white';
+                if (questionStatus[i] === 'correct') statusClass = 'bg-green-500 hover:bg-green-600 text-white';
+                if (questionStatus[i] === 'incorrect') statusClass = 'bg-red-500 hover:bg-red-600 text-white';
+                button.className = `w-12 h-12 rounded-lg font-bold transition ${statusClass}`;
+                button.addEventListener('click', () => renderQuestionView(i));
+                questionGrid.appendChild(button);
+            }
+            showView('quiz-home');
+        }
+
+        function renderQuestionView(index) {
+            const q = quizData[index];
+            progressText.textContent = `Question ${index + 1} / ${quizData.length}`;
             questionText.textContent = q.question;
+            answersContainer.innerHTML = '';
+            feedbackBox.classList.add('hidden');
+
             q.answers.forEach(answer => {
                 const button = document.createElement('button');
                 button.textContent = answer;
-                button.className = 'answer-btn w-full text-center p-4 border-2 border-gray-300 rounded-lg hover:bg-slate-100';
-                button.addEventListener('click', () => {
-                    selectedAnswer = answer;
-                    document.querySelectorAll('.answer-btn').forEach(btn => btn.classList.remove('selected'));
-                    button.classList.add('selected');
-                    checkBtn.disabled = false;
-                });
+                button.className = 'w-full text-left p-4 mt-2 border-2 border-gray-200 rounded-lg hover:bg-slate-100 transition';
+                if (answer === userAnswers[index]) {
+                    button.classList.add('selected', 'border-blue-500', 'bg-blue-50');
+                }
+                button.addEventListener('click', () => selectAnswer(index, answer));
                 answersContainer.appendChild(button);
             });
+            
+            if(isGraded) {
+                showFeedback(index);
+            }
+
+            prevBtn.onclick = () => renderQuestionView(index - 1);
+            nextBtn.onclick = () => renderQuestionView(index + 1);
+            homeBtn.onclick = renderQuizHome;
+
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === quizData.length - 1;
+            
+            showView('question');
         }
 
-        function checkAnswer() {
-            const q = quizData[currentQuestionIndex];
+        function selectAnswer(qIndex, answer) {
+            if (isGraded) return; // Cannot change answers after grading
+            userAnswers[qIndex] = answer;
+            questionStatus[qIndex] = 'answered';
+            renderQuestionView(qIndex);
+        }
+
+        function showFeedback(index) {
+            const q = quizData[index];
+            const feedbackEl = document.getElementById('feedback-box');
+            const answerButtons = answersContainer.querySelectorAll('button');
+            const selectedAnswer = userAnswers[index];
             const isCorrect = selectedAnswer === q.correct;
-            attempts++;
 
-            document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = true);
-            feedbackBox.style.display = 'block';
+            answerButtons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.correct) {
+                     btn.className += ' correct bg-green-50 border-green-500';
+                }
+                if (btn.textContent === selectedAnswer && !isCorrect) {
+                     btn.className += ' incorrect bg-red-50 border-red-500';
+                }
+            });
 
-            if (isCorrect) {
-                score++;
-                const selectedBtn = Array.from(answersContainer.children).find(btn => btn.textContent === selectedAnswer);
-                selectedBtn.classList.add('correct');
-                feedbackTitle.textContent = "Correct! 🎉";
-                feedbackText.textContent = q.explanation;
-                feedbackBox.className = 'mt-6 p-4 rounded-lg bg-green-50 text-green-800';
-                showNextButton();
-            } else {
-                const selectedBtn = Array.from(answersContainer.children).find(btn => btn.textContent === selectedAnswer);
-                selectedBtn.classList.add('incorrect');
-                if (attempts < 2) {
-                    feedbackTitle.textContent = "Not quite... 🤔";
-                    feedbackText.innerHTML = `<b>Hint:</b> ${q.hint}<br>Please choose another answer and check again.`;
-                    feedbackBox.className = 'mt-6 p-4 rounded-lg bg-yellow-50 text-yellow-800';
-                    document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = false); // Re-enable buttons
-                } else {
-                    feedbackTitle.textContent = "Let's review this one.";
-                    feedbackText.textContent = q.explanation;
-                    feedbackBox.className = 'mt-6 p-4 rounded-lg bg-red-50 text-red-800';
-                    const correctBtn = Array.from(answersContainer.children).find(btn => btn.textContent === q.correct);
-                    correctBtn.classList.add('correct');
-                    showNextButton();
+            feedbackEl.innerHTML = `<p class="font-bold">Explanation:</p><p>${q.explanation}</p>`;
+            feedbackEl.className = `feedback p-4 rounded-lg mt-6 ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`;
+            feedbackEl.classList.remove('hidden');
+        }
+
+        gradeBtn.addEventListener('click', () => {
+            isGraded = true;
+            let score = 0;
+            for (let i = 0; i < quizData.length; i++) {
+                if (userAnswers[i] === quizData[i].correct) {
+                    score++;
+                    questionStatus[i] = 'correct';
+                } else if (userAnswers[i] !== null) { // if answered
+                    questionStatus[i] = 'incorrect';
                 }
             }
-        }
-        
-        function showNextButton() {
-            checkBtn.classList.add('hidden');
-            nextBtn.classList.remove('hidden');
-            if (currentQuestionIndex === quizData.length - 1) {
-                nextBtn.textContent = 'Finish Quiz';
-            }
-        }
+            summaryEl.textContent = `Result: You got ${score} out of ${quizData.length} correct! Click a number to review.`;
+            summaryEl.classList.remove('hidden');
+            renderQuizHome();
+        });
 
-        function handleNext() {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < quizData.length) {
-                loadQuestion();
-            } else {
-                showFinalResult();
-            }
-        }
-        
-        function showFinalResult() {
-            quizWrapper.innerHTML = `
-                <div class="text-center">
-                    <h2 class="text-3xl font-bold text-gray-800">Quiz Complete!</h2>
-                    <p class="mt-4 text-xl text-gray-600">Your final score is:</p>
-                    <p class="my-6 text-6xl font-black text-indigo-600">${score} / ${quizData.length}</p>
-                    <div class="mt-8 space-x-4">
-                        <a href="./sejong1-lesson1-notes.html" class="bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition">Back to Notes</a>
-                        <button onclick="location.reload()" class="bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-600 transition">Try Again</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        checkBtn.addEventListener('click', checkAnswer);
-        nextBtn.addEventListener('click', handleNext);
-
-        loadQuestion();
+        // Initial Load
+        renderQuizHome();
     </script>
 </body>
 </html>
