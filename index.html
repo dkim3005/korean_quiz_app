@@ -1,128 +1,174 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final Korean Review - Main Page</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <style>
-        body { 
-            font-family: 'Inter', 'Noto Sans KR', sans-serif; 
-        }
-        .quiz-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .quiz-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-    </style>
-</head>
-<body class="bg-slate-100">
-    <div class="container mx-auto px-4 py-12">
-        <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-black text-gray-800">Final Korean Review</h1>
-            <p class="text-gray-600 mt-4 text-lg">Check your Korean skills with our 6 quiz sets!</p>
-        </header>
+\<\!DOCTYPE html\>
 
-        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
-                <div class="p-8 flex-grow">
-                    <h2 class="text-3xl font-bold text-indigo-600">Quiz Set 1</h2>
-                    <p class="text-gray-500 mt-2">50 Questions</p>
+\<html lang="en"\>
+\<head\>
+\<meta charset="UTF-8"\>
+\<meta name="viewport" content="width=device-width, initial-scale=1.0"\>
+\<title\>Final Korean Review - Main Page\</title\>
+\<script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"\>\</script\>
+\<link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)"\>
+\<link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin\>
+\<link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;700\&family=Noto+Sans+KR:wght@400;500;700;900\&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap)" rel="stylesheet"\>
+\<style\>
+body {
+font-family: 'Inter', 'Noto Sans KR', sans-serif;
+}
+.quiz-card {
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.quiz-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.video-link-card {
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.video-link-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+\</style\>
+\</head\>
+\<body class="bg-slate-100"\>
+\<div class="container mx-auto px-4 py-12"\>
+\<header class="text-center mb-12"\>
+\<h1 class="text-4xl md:text-5xl font-black text-gray-800"\>Final Korean Review\</h1\>
+\<p class="text-gray-600 mt-4 text-lg"\>Check your Korean skills with our 6 quiz sets\!\</p\>
+\</header\>
+
+```
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-700 mb-4 text-center">Study Materials</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="video-link-card bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h3 class="text-xl font-bold text-red-600 mb-2">Beginner Korean Course</h3>
+                    <p class="text-gray-500">Basic Korean lessons for beginners.</p>
                 </div>
-                <div class="grid grid-cols-2">
-                    <a href="./1-1.html" class="block bg-indigo-100 text-indigo-800 text-center font-bold py-4 hover:bg-indigo-200 transition duration-300">
-                        Study Guide
-                    </a>
-                    <a href="./1.html" class="block bg-indigo-500 text-white text-center font-bold py-4 hover:bg-indigo-600 transition duration-300">
-                        Take Quiz
-                    </a>
-                </div>
+                <a href="[https://www.youtube.com/playlist?list=PLbFrQnW0BNMUkAFj4MjYauXBPtO3I9O_k](https://www.youtube.com/playlist?list=PLbFrQnW0BNMUkAFj4MjYauXBPtO3I9O_k)" target="_blank" class="block bg-red-500 text-white text-center font-bold py-4 hover:bg-red-600 transition duration-300">
+                    Watch Playlist
+                </a>
             </div>
 
-            <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
-                <div class="p-8 flex-grow">
-                    <h2 class="text-3xl font-bold text-teal-600">Quiz Set 2</h2>
-                    <p class="text-gray-500 mt-2">50 Questions</p>
+            <div class="video-link-card bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h3 class="text-xl font-bold text-blue-600 mb-2">Sejong Korean 1</h3>
+                    <p class="text-gray-500">Lessons based on the Sejong Korean 1 textbook.</p>
                 </div>
-                <div class="grid grid-cols-2">
-                    <a href="./2-1.html" class="block bg-teal-100 text-teal-800 text-center font-bold py-4 hover:bg-teal-200 transition duration-300">
-                        Study Guide
-                    </a>
-                    <a href="./2.html" class="block bg-teal-500 text-white text-center font-bold py-4 hover:bg-teal-600 transition duration-300">
-                        Take Quiz
-                    </a>
-                </div>
+                <a href="[https://youtube.com/playlist?list=PL6D-YTosvGYq4BSGSUZom6etXcXcAu2Ym&si=HHYGFXp_wEBdDyL-](https://youtube.com/playlist?list=PL6D-YTosvGYq4BSGSUZom6etXcXcAu2Ym&si=HHYGFXp_wEBdDyL-)" target="_blank" class="block bg-blue-500 text-white text-center font-bold py-4 hover:bg-blue-600 transition duration-300">
+                    Watch Playlist
+                </a>
             </div>
 
-            <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
-                <div class="p-8 flex-grow">
-                    <h2 class="text-3xl font-bold text-amber-600">Quiz Set 3</h2>
-                    <p class="text-gray-500 mt-2">50 Questions</p>
+            <div class="video-link-card bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h3 class="text-xl font-bold text-purple-600 mb-2">Sejong Korean</h3>
+                    <p class="text-gray-500">A broader collection of Sejong Korean lessons.</p>
                 </div>
-                <div class="grid grid-cols-2">
-                    <a href="./3-1.html" class="block bg-amber-100 text-amber-800 text-center font-bold py-4 hover:bg-amber-200 transition duration-300">
-                        Study Guide
-                    </a>
-                    <a href="./3.html" class="block bg-amber-500 text-white text-center font-bold py-4 hover:bg-amber-600 transition duration-300">
-                        Take Quiz
-                    </a>
-                </div>
+                <a href="[https://youtube.com/playlist?list=PL6D-YTosvGYqS-MBTama4zrwsMa3gwDEZ&si=qJTHmG869CgcuHrc](https://youtube.com/playlist?list=PL6D-YTosvGYqS-MBTama4zrwsMa3gwDEZ&si=qJTHmG869CgcuHrc)" target="_blank" class="block bg-purple-500 text-white text-center font-bold py-4 hover:bg-purple-600 transition duration-300">
+                    Watch Playlist
+                </a>
             </div>
+        </div>
+    </section>
 
-            <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
-                <div class="p-8 flex-grow">
-                    <h2 class="text-3xl font-bold text-rose-600">Quiz Set 4</h2>
-                    <p class="text-gray-500 mt-2">50 Questions</p>
-                </div>
-                <div class="grid grid-cols-2">
-                    <a href="./4-1.html" class="block bg-rose-100 text-rose-800 text-center font-bold py-4 hover:bg-rose-200 transition duration-300">
-                        Study Guide
-                    </a>
-                    <a href="./4.html" class="block bg-rose-500 text-white text-center font-bold py-4 hover:bg-rose-600 transition duration-300">
-                        Take Quiz
-                    </a>
-                </div>
+    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
+            <div class="p-8 flex-grow">
+                <h2 class="text-3xl font-bold text-indigo-600">Quiz Set 1</h2>
+                <p class="text-gray-500 mt-2">50 Questions</p>
             </div>
+            <div class="grid grid-cols-2">
+                <a href="./1-1.html" class="block bg-indigo-100 text-indigo-800 text-center font-bold py-4 hover:bg-indigo-200 transition duration-300">
+                    Study Guide
+                </a>
+                <a href="./1.html" class="block bg-indigo-500 text-white text-center font-bold py-4 hover:bg-indigo-600 transition duration-300">
+                    Take Quiz
+                </a>
+            </div>
+        </div>
 
-            <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
-                <div class="p-8 flex-grow">
-                    <h2 class="text-3xl font-bold text-sky-600">Quiz Set 5</h2>
-                    <p class="text-gray-500 mt-2">50 Questions</p>
-                </div>
-                <div class="grid grid-cols-2">
-                    <a href="./5-1.html" class="block bg-sky-100 text-sky-800 text-center font-bold py-4 hover:bg-sky-200 transition duration-300">
-                        Study Guide
-                    </a>
-                    <a href="./5.html" class="block bg-sky-500 text-white text-center font-bold py-4 hover:bg-sky-600 transition duration-300">
-                        Take Quiz
-                    </a>
-                </div>
+        <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
+            <div class="p-8 flex-grow">
+                <h2 class="text-3xl font-bold text-teal-600">Quiz Set 2</h2>
+                <p class="text-gray-500 mt-2">50 Questions</p>
             </div>
+            <div class="grid grid-cols-2">
+                <a href="./2-1.html" class="block bg-teal-100 text-teal-800 text-center font-bold py-4 hover:bg-teal-200 transition duration-300">
+                    Study Guide
+                </a>
+                <a href="./2.html" class="block bg-teal-500 text-white text-center font-bold py-4 hover:bg-teal-600 transition duration-300">
+                    Take Quiz
+                </a>
+            </div>
+        </div>
 
-            <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
-                <div class="p-8 flex-grow">
-                    <h2 class="text-3xl font-bold text-slate-600">Quiz Set 6</h2>
-                    <p class="text-gray-500 mt-2">50 Questions</p>
-                </div>
-                <div class="grid grid-cols-2">
-                    <a href="./6-1.html" class="block bg-slate-100 text-slate-800 text-center font-bold py-4 hover:bg-slate-200 transition duration-300">
-                        Study Guide
-                    </a>
-                    <a href="./6.html" class="block bg-slate-500 text-white text-center font-bold py-4 hover:bg-slate-600 transition duration-300">
-                        Take Quiz
-                    </a>
-                </div>
+        <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
+            <div class="p-8 flex-grow">
+                <h2 class="text-3xl font-bold text-amber-600">Quiz Set 3</h2>
+                <p class="text-gray-500 mt-2">50 Questions</p>
             </div>
-        </main>
-        
-        <footer class="text-center mt-12 text-gray-500">
-            <p>&copy; 2025 Korean Language Quiz Portal. All rights reserved. Developed by Jay Kim. </p>
-        </footer>
-    </div>
-</body>
-</html>
+            <div class="grid grid-cols-2">
+                <a href="./3-1.html" class="block bg-amber-100 text-amber-800 text-center font-bold py-4 hover:bg-amber-200 transition duration-300">
+                    Study Guide
+                </a>
+                <a href="./3.html" class="block bg-amber-500 text-white text-center font-bold py-4 hover:bg-amber-600 transition duration-300">
+                    Take Quiz
+                </a>
+            </div>
+        </div>
+
+        <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
+            <div class="p-8 flex-grow">
+                <h2 class="text-3xl font-bold text-rose-600">Quiz Set 4</h2>
+                <p class="text-gray-500 mt-2">50 Questions</p>
+            </div>
+            <div class="grid grid-cols-2">
+                <a href="./4-1.html" class="block bg-rose-100 text-rose-800 text-center font-bold py-4 hover:bg-rose-200 transition duration-300">
+                    Study Guide
+                </a>
+                <a href="./4.html" class="block bg-rose-500 text-white text-center font-bold py-4 hover:bg-rose-600 transition duration-300">
+                    Take Quiz
+                </a>
+            </div>
+        </div>
+
+        <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
+            <div class="p-8 flex-grow">
+                <h2 class="text-3xl font-bold text-sky-600">Quiz Set 5</h2>
+                <p class="text-gray-500 mt-2">50 Questions</p>
+            </div>
+            <div class="grid grid-cols-2">
+                <a href="./5-1.html" class="block bg-sky-100 text-sky-800 text-center font-bold py-4 hover:bg-sky-200 transition duration-300">
+                    Study Guide
+                </a>
+                <a href="./5.html" class="block bg-sky-500 text-white text-center font-bold py-4 hover:bg-sky-600 transition duration-300">
+                    Take Quiz
+                </a>
+            </div>
+        </div>
+
+        <div class="quiz-card bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
+            <div class="p-8 flex-grow">
+                <h2 class="text-3xl font-bold text-slate-600">Quiz Set 6</h2>
+                <p class="text-gray-500 mt-2">50 Questions</p>
+            </div>
+            <div class="grid grid-cols-2">
+                <a href="./6-1.html" class="block bg-slate-100 text-slate-800 text-center font-bold py-4 hover:bg-slate-200 transition duration-300">
+                    Study Guide
+                </a>
+                <a href="./6.html" class="block bg-slate-500 text-white text-center font-bold py-4 hover:bg-slate-600 transition duration-300">
+                    Take Quiz
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center mt-12 text-gray-500">
+        <p>&copy; 2025 Korean Language Quiz Portal. All rights reserved. Developed by Jay Kim. </p>
+    </footer>
+</div>
+```
+
+\</body\>
+\</html\>
