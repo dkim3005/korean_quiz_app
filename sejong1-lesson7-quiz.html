@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 7 Quiz: Weather</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .answer-btn.selected { border-color: #3b82f6; background-color: #eff6ff; }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+
+        <div id="view-quiz-home">
+            <header class="text-center mb-6">
+                <h1 class="text-4xl font-black text-gray-800">Lesson 7 Quiz</h1>
+                <p class="text-gray-600 mt-2">Click a number to start, or grade your answers.</p>
+            </header>
+            <div id="result-summary" class="hidden mb-6 p-4 text-center font-bold text-xl bg-blue-100 text-blue-800 rounded-lg"></div>
+            <div id="question-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2 p-4 bg-white rounded-2xl shadow-lg">
+            </div>
+            <div class="mt-6 text-center space-x-4">
+                <a href="./sejong1-lesson7-notes.html" class="bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition">Lesson Notes</a>
+                <button id="grade-btn" class="bg-pink-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-pink-600 transition">Grade My Answers</button>
+            </div>
+        </div>
+
+        <div id="view-question" class="hidden">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl">
+                <div id="progress-container" class="mb-6">
+                    <p id="progress-text" class="text-sm font-semibold text-gray-500"></p>
+                </div>
+                <div id="quiz-content">
+                    <p id="question-text" class="text-xl sm:text-2xl font-bold text-gray-800"></p>
+                    <div id="answers-container" class="mt-6 space-y-3"></div>
+                </div>
+                <div id="feedback-box" class="hidden mt-6 p-4 rounded-lg"></div>
+            </div>
+            <nav class="mt-6 flex justify-between items-center">
+                <button id="prev-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">&lt;&lt; Prev</button>
+                <div>
+                    <a href="./sejong1-lesson7-notes.html" class="text-sm text-gray-500 mx-2 hover:underline">Lesson Notes</a>
+                    <button id="home-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">Quiz Home</button>
+                </div>
+                <button id="next-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">Next &gt;&gt;</button>
+            </nav>
+        </div>
+
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "What does '날씨가 흐려요' mean?", answers: ["It's sunny", "It's cloudy", "It's windy"], correct: "It's cloudy", explanation: "'흐려요' means cloudy or overcast." },
+            { question: "How do you make '추워요' (It's cold) negative?", answers: ["안 추워요", "추워요 안", "춥지 않아요"], correct: "안 추워요", explanation: "Place '안' before the adjective to make it negative." },
+            { question: "How do you say 'It is not raining'?", answers: ["비가 와요", "비가 안 와요", "안 비가 와요"], correct: "비가 안 와요", explanation: "To negate '와요', you say '안 와요'." },
+            { question: "Which particle means 'too' or 'also'?", answers: ["는", "하고", "도"], correct: "도", explanation: "'도' is added to a noun to mean 'too' or 'also'." },
+            { question: "What is the correct way to say 'I don't exercise'?", answers: ["안 운동해요", "운동을 안", "운동 안 해요"], correct: "운동 안 해요", explanation: "For Noun-하다 verbs, '안' goes between the noun and '하다'." },
+            { question: "What is '가을' in English?", answers: ["Spring", "Summer", "Autumn"], correct: "Autumn", explanation: "'가을' is the season of autumn/fall." },
+            { question: "A: 저는 여름을 좋아해요. B: 저___ 여름을 좋아해요.", answers: ["는", "도", "를"], correct: "도", explanation: "B is agreeing and adding themselves to the group, so '저도' (Me too) is correct." },
+            { question: "Which conjunction is used to connect two sentences?", answers: ["하고", "그리고", "도"], correct: "그리고", explanation: "'그리고' means 'and' and is used to link two complete sentences." },
+            { question: "In which season does it snow (눈이 와요)?", answers: ["봄", "여름", "겨울"], correct: "겨울", explanation: "'겨울' is winter, the season when it snows." },
+            { question: "What does '바람이 불어요' mean?", answers: ["It's snowing", "It's windy", "It's sunny"], correct: "It's windy", explanation: "'바람이 불어요' means the wind is blowing." },
+            { question: "Which sentence is grammatically correct?", answers: ["저는 한국어 하고 영어를 공부해요.", "저는 한국어 그리고 영어를 공부해요.", "저는 한국어를 좋아해요 그리고 영어."], correct: "저는 한국어 하고 영어를 공부해요.", explanation: "'하고' is used to connect nouns like 'Korean' and 'English'." },
+            { question: "What is '따뜻하다'?", answers: ["Hot", "Warm", "Cold"], correct: "Warm", explanation: "'따뜻하다' describes a comfortable warm temperature, typical of spring." },
+            { question: "A: 오늘 날씨가 어때요? B: ____.", answers: ["운동 안 해요", "봄을 좋아해요", "맑아요"], correct: "맑아요", explanation: "The question asks about the weather, so '맑아요' (It's clear/sunny) is an appropriate answer." },
+            { question: "How do you say 'Spring' in Korean?", answers: ["봄", "꽃", "봄을"], correct: "봄", explanation: "'봄' is the Korean word for Spring." },
+            { question: "Which sentence means 'I like autumn too.'?", answers: ["가을을 좋아해요.", "가을도 좋아해요.", "가을하고 좋아해요."], correct: "가을도 좋아해요.", explanation: "'도' replaces the object particle '을/를' to add the meaning of 'too' or 'also'." },
+            { question: "How do you negate the sentence '날씨가 좋아요'?", answers: ["날씨가 안 좋아요", "안 날씨가 좋아요", "날씨가 없어요"], correct: "날씨가 안 좋아요", explanation: "'안' is placed directly before '좋아요'." },
+            { question: "What is '시원하다'?", answers: ["Humid", "Cool/Refreshing", "Cold"], correct: "Cool/Refreshing", explanation: "'시원하다' describes a pleasant, cool feeling, typical of autumn." },
+            { question: "Choose the correct particles: '저는 봄__ 좋아해요. 그리고 가을__ 좋아해요.'", answers: ["을, 을", "을, 도", "도, 도"], correct: "을, 도", explanation: "'봄을 좋아해요' (I like spring). '그리고 가을도 좋아해요' (And I like autumn too)." },
+            { question: "What is '여름'?", answers: ["Beach", "Hot", "Summer"], correct: "Summer", explanation: "'여름' is the Korean word for summer." },
+            { question: "Which statement is false?", answers: ["겨울은 추워요", "여름은 시원해요", "봄은 따뜻해요"], correct: "여름은 시원해요", explanation: "여름 (summer) is 덥다 (hot), not 시원하다 (cool). 가을 (autumn) is 시원하다." }
+        ];
+
+        let userAnswers = new Array(quizData.length).fill(null);
+        let questionStatus = new Array(quizData.length).fill('unanswered'); // 'unanswered', 'answered', 'correct', 'incorrect'
+        let isGraded = false;
+
+        const viewHome = document.getElementById('view-quiz-home');
+        const viewQuestion = document.getElementById('view-question');
+        const questionGrid = document.getElementById('question-grid');
+        const gradeBtn = document.getElementById('grade-btn');
+        const summaryEl = document.getElementById('result-summary');
+        
+        const progressText = document.getElementById('progress-text');
+        const questionText = document.getElementById('question-text');
+        const answersContainer = document.getElementById('answers-container');
+        const feedbackBox = document.getElementById('feedback-box');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const homeBtn = document.getElementById('home-btn');
+
+        function showView(viewName) {
+            viewHome.classList.add('hidden');
+            viewQuestion.classList.add('hidden');
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+        }
+
+        function renderQuizHome() {
+            questionGrid.innerHTML = '';
+            for (let i = 0; i < quizData.length; i++) {
+                const button = document.createElement('button');
+                button.textContent = i + 1;
+                button.dataset.index = i;
+                let statusClass = 'bg-gray-200 hover:bg-gray-300 text-gray-700';
+                if (questionStatus[i] === 'answered') statusClass = 'bg-blue-500 hover:bg-blue-600 text-white';
+                if (questionStatus[i] === 'correct') statusClass = 'bg-green-500 hover:bg-green-600 text-white';
+                if (questionStatus[i] === 'incorrect') statusClass = 'bg-red-500 hover:bg-red-600 text-white';
+                button.className = `w-12 h-12 rounded-lg font-bold transition ${statusClass}`;
+                button.addEventListener('click', () => renderQuestionView(i));
+                questionGrid.appendChild(button);
+            }
+            showView('quiz-home');
+        }
+
+        function renderQuestionView(index) {
+            const q = quizData[index];
+            progressText.textContent = `Question ${index + 1} / ${quizData.length}`;
+            questionText.textContent = q.question;
+            answersContainer.innerHTML = '';
+            feedbackBox.classList.add('hidden');
+
+            q.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.textContent = answer;
+                button.className = 'w-full text-left p-4 mt-2 border-2 border-gray-200 rounded-lg hover:bg-slate-100 transition';
+                if (answer === userAnswers[index]) {
+                    button.classList.add('selected', 'border-blue-500', 'bg-blue-50');
+                }
+                button.addEventListener('click', () => selectAnswer(index, answer));
+                answersContainer.appendChild(button);
+            });
+            
+            if(isGraded) {
+                showFeedback(index);
+            }
+
+            prevBtn.onclick = () => renderQuestionView(index - 1);
+            nextBtn.onclick = () => renderQuestionView(index + 1);
+            homeBtn.onclick = renderQuizHome;
+
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === quizData.length - 1;
+            
+            showView('question');
+        }
+
+        function selectAnswer(qIndex, answer) {
+            if (isGraded) return; // Cannot change answers after grading
+            userAnswers[qIndex] = answer;
+            questionStatus[qIndex] = 'answered';
+            renderQuestionView(qIndex);
+        }
+
+        function showFeedback(index) {
+            const q = quizData[index];
+            const feedbackEl = document.getElementById('feedback-box');
+            const answerButtons = answersContainer.querySelectorAll('button');
+            const selectedAnswer = userAnswers[index];
+            const isCorrect = selectedAnswer === q.correct;
+
+            answerButtons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.correct) {
+                     btn.className += ' correct bg-green-50 border-green-500';
+                }
+                if (btn.textContent === selectedAnswer && !isCorrect) {
+                     btn.className += ' incorrect bg-red-50 border-red-500';
+                }
+            });
+
+            feedbackEl.innerHTML = `<p class="font-bold">Explanation:</p><p>${q.explanation}</p>`;
+            feedbackEl.className = `feedback p-4 rounded-lg mt-6 ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`;
+            feedbackEl.classList.remove('hidden');
+        }
+
+        gradeBtn.addEventListener('click', () => {
+            isGraded = true;
+            let score = 0;
+            for (let i = 0; i < quizData.length; i++) {
+                if (userAnswers[i] === quizData[i].correct) {
+                    score++;
+                    questionStatus[i] = 'correct';
+                } else if (userAnswers[i] !== null) { // if answered
+                    questionStatus[i] = 'incorrect';
+                }
+            }
+            summaryEl.textContent = `Result: You got ${score} out of ${quizData.length} correct! Click a number to review.`;
+            summaryEl.classList.remove('hidden');
+            renderQuizHome();
+        });
+
+        // Initial Load
+        renderQuizHome();
+    </script>
+</body>
+</html>
