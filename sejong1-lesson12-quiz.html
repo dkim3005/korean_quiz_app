@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 12 Quiz: Future Plans</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .answer-btn.selected { border-color: #3b82f6; background-color: #eff6ff; }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+
+        <div id="view-quiz-home">
+            <header class="text-center mb-6">
+                <h1 class="text-4xl font-black text-gray-800">Lesson 12 Quiz</h1>
+                <p class="text-gray-600 mt-2">Click a number to start, or grade your answers.</p>
+            </header>
+            <div id="result-summary" class="hidden mb-6 p-4 text-center font-bold text-xl bg-blue-100 text-blue-800 rounded-lg"></div>
+            <div id="question-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2 p-4 bg-white rounded-2xl shadow-lg">
+            </div>
+            <div class="mt-6 text-center space-x-4">
+                <a href="./sejong1-lesson12-notes.html" class="bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition">Lesson Notes</a>
+                <button id="grade-btn" class="bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-600 transition">Grade My Answers</button>
+            </div>
+        </div>
+
+        <div id="view-question" class="hidden">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl">
+                <div id="progress-container" class="mb-6">
+                    <p id="progress-text" class="text-sm font-semibold text-gray-500"></p>
+                </div>
+                <div id="quiz-content">
+                    <p id="question-text" class="text-xl sm:text-2xl font-bold text-gray-800"></p>
+                    <div id="answers-container" class="mt-6 space-y-3"></div>
+                </div>
+                <div id="feedback-box" class="hidden mt-6 p-4 rounded-lg"></div>
+            </div>
+            <nav class="mt-6 flex justify-between items-center">
+                <button id="prev-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">&lt;&lt; Prev</button>
+                <div>
+                    <a href="./sejong1-lesson12-notes.html" class="text-sm text-gray-500 mx-2 hover:underline">Lesson Notes</a>
+                    <button id="home-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">Quiz Home</button>
+                </div>
+                <button id="next-btn" class="bg-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition">Next &gt;&gt;</button>
+            </nav>
+        </div>
+
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "How do you say 'to get a job' in Korean?", answers: ["졸업하다", "결혼하다", "취직하다"], correct: "취직하다", explanation: "'취직하다' means to get a job or find employment." },
+            { question: "How do you say 'to study abroad' in Korean?", answers: ["유학을 가다", "여행을 가다", "대학원에 가다"], correct: "유학을 가다", explanation: "'유학을 가다' specifically means to go study abroad." },
+            { question: "What is the correct future tense form for '배우다' (to learn)?", answers: ["배울 거예요", "배우을 거예요", "배웠어요"], correct: "배울 거예요", explanation: "The verb stem '배우' ends in a vowel, so you add '-ㄹ 거예요'." },
+            { question: "What is Mark's plan for his vacation?", answers: ["Study abroad in China", "Work part-time and travel to Korea", "Get married"], correct: "Work part-time and travel to Korea", explanation: "Mark plans to do a part-time job and also visit Korea with friends." },
+            { question: "A long-term life plan would be...?", answers: ["낮잠을 자다 (to take a nap)", "결혼하다 (to get married)", "영화를 보다 (to watch a movie)"], correct: "결혼하다 (to get married)", explanation: "Getting married is a major long-term life plan." },
+            { question: "What does '졸업하다' mean?", answers: ["To get a job", "To graduate", "To get married"], correct: "To graduate", explanation: "'졸업하다' means to graduate." },
+            { question: "How do you say 'I will travel'?", answers: ["여행했어요", "여행해요", "여행할 거예요"], correct: "여행할 거예요", explanation: "The future tense of '여행하다' is '여행할 거예요'." },
+            { question: "What is Laura's plan after graduating this year?", answers: ["To get a job", "To study abroad", "To go to graduate school"], correct: "To get a job", explanation: "Laura plans to graduate and then get a job (취직하다)." },
+            { question: "What does '아르바이트' mean?", answers: ["A full-time job", "A vacation", "A part-time job"], correct: "A part-time job", explanation: "'아르바이트' (from the German 'Arbeit') means a part-time job." },
+            { question: "How do you say 'I will go to graduate school'?", answers: ["대학교에 갈 거예요", "대학원에 갈 거예요", "유학을 갈 거예요"], correct: "대학원에 갈 거예요", explanation: "'대학원' means graduate school." },
+            { question: "What is Sutin's ultimate goal?", answers: ["To graduate from university", "To get a job at a Korean company", "To do a part-time job"], correct: "To get a job at a Korean company", explanation: "Sutin's final goal is to get a job at a Korean company." },
+            { question: "What is the correct future tense of '살다' (to live)?", answers: ["살을 거예요", "살 거예요", "살ㄹ 거예요"], correct: "살 거예요", explanation: "For verb stems ending in 'ㄹ', you just add '-ㄹ 거예요', and one 'ㄹ' is dropped." },
+            { question: "A: 졸업하고 뭐 할 거예요? B: ____.", answers: ["운동했어요", "취직할 거예요", "공부해요"], correct: "취직할 거예요", explanation: "The question asks about future plans after graduation, so 'I will get a job' is a logical answer." },
+            { question: "Which of these is a short-term vacation plan?", answers: ["취직하다", "결혼하다", "운동하다"], correct: "운동하다", explanation: "Exercising is a common short-term or daily plan, whereas the others are major life events." },
+            { question: "The woman in the dialogue is learning Korean cooking because...", answers: ["she will get a job as a chef.", "she will travel to Korea.", "she will get married to a Korean man."], correct: "she will get married to a Korean man.", explanation: "She is learning to cook Korean food because her fiancé is Korean." },
+            { question: "What does '결혼하다' mean?", answers: ["To get married", "To graduate", "To study abroad"], correct: "To get married", explanation: "'결혼하다' is the verb for 'to get married'." },
+            { question: "How would Mark say 'I will go study abroad in China next year'?", answers: ["내년에 중국에서 유학했어요", "내년에 중국으로 유학을 갈 거예요", "작년에 중국으로 유학을 갔어요"], correct: "내년에 중국으로 유학을 갈 거예요", explanation: "'내년' means next year, and '갈 거예요' is the correct future tense." },
+            { question: "What is a plan for the person going on holiday to Busan?", answers: ["To go to a museum", "To meet their teacher", "To go swimming at the sea"], correct: "To go swimming at the sea", explanation: "In Busan, the plan is to go to the sea (바다) and swim (수영하다)." },
+            { question: "What is the main grammar point for discussing future plans?", answers: ["-았/었어요", "-(으)ㄹ까요?", "-(으)ㄹ 거예요"], correct: "-(으)ㄹ 거예요", explanation: "The future tense ending '-(으)ㄹ 거예요' is used to state future plans and intentions." },
+            { question: "A: 방학에 뭐 할 거예요? B: ____.", answers: ["아르바이트를 했어요", "아르바이트를 할 거예요", "아르바이트를 해요"], correct: "아르바이트를 할 거예요", explanation: "The question uses the future tense, so the answer should also be in the future tense." }
+        ];
+
+        let userAnswers = new Array(quizData.length).fill(null);
+        let questionStatus = new Array(quizData.length).fill('unanswered'); // 'unanswered', 'answered', 'correct', 'incorrect'
+        let isGraded = false;
+
+        const viewHome = document.getElementById('view-quiz-home');
+        const viewQuestion = document.getElementById('view-question');
+        const questionGrid = document.getElementById('question-grid');
+        const gradeBtn = document.getElementById('grade-btn');
+        const summaryEl = document.getElementById('result-summary');
+        
+        const progressText = document.getElementById('progress-text');
+        const questionText = document.getElementById('question-text');
+        const answersContainer = document.getElementById('answers-container');
+        const feedbackBox = document.getElementById('feedback-box');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const homeBtn = document.getElementById('home-btn');
+
+        function showView(viewName) {
+            viewHome.classList.add('hidden');
+            viewQuestion.classList.add('hidden');
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+        }
+
+        function renderQuizHome() {
+            questionGrid.innerHTML = '';
+            for (let i = 0; i < quizData.length; i++) {
+                const button = document.createElement('button');
+                button.textContent = i + 1;
+                button.dataset.index = i;
+                let statusClass = 'bg-gray-200 hover:bg-gray-300 text-gray-700';
+                if (questionStatus[i] === 'answered') statusClass = 'bg-blue-500 hover:bg-blue-600 text-white';
+                if (questionStatus[i] === 'correct') statusClass = 'bg-green-500 hover:bg-green-600 text-white';
+                if (questionStatus[i] === 'incorrect') statusClass = 'bg-red-500 hover:bg-red-600 text-white';
+                button.className = `w-12 h-12 rounded-lg font-bold transition ${statusClass}`;
+                button.addEventListener('click', () => renderQuestionView(i));
+                questionGrid.appendChild(button);
+            }
+            showView('quiz-home');
+        }
+
+        function renderQuestionView(index) {
+            const q = quizData[index];
+            progressText.textContent = `Question ${index + 1} / ${quizData.length}`;
+            questionText.textContent = q.question;
+            answersContainer.innerHTML = '';
+            feedbackBox.classList.add('hidden');
+
+            q.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.textContent = answer;
+                button.className = 'w-full text-left p-4 mt-2 border-2 border-gray-200 rounded-lg hover:bg-slate-100 transition';
+                if (answer === userAnswers[index]) {
+                    button.classList.add('selected', 'border-blue-500', 'bg-blue-50');
+                }
+                button.addEventListener('click', () => selectAnswer(index, answer));
+                answersContainer.appendChild(button);
+            });
+            
+            if(isGraded) {
+                showFeedback(index);
+            }
+
+            prevBtn.onclick = () => renderQuestionView(index - 1);
+            nextBtn.onclick = () => renderQuestionView(index + 1);
+            homeBtn.onclick = renderQuizHome;
+
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === quizData.length - 1;
+            
+            showView('question');
+        }
+
+        function selectAnswer(qIndex, answer) {
+            if (isGraded) return; // Cannot change answers after grading
+            userAnswers[qIndex] = answer;
+            questionStatus[qIndex] = 'answered';
+            renderQuestionView(qIndex);
+        }
+
+        function showFeedback(index) {
+            const q = quizData[index];
+            const feedbackEl = document.getElementById('feedback-box');
+            const answerButtons = answersContainer.querySelectorAll('button');
+            const selectedAnswer = userAnswers[index];
+            const isCorrect = selectedAnswer === q.correct;
+
+            answerButtons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.correct) {
+                     btn.className += ' correct bg-green-50 border-green-500';
+                }
+                if (btn.textContent === selectedAnswer && !isCorrect) {
+                     btn.className += ' incorrect bg-red-50 border-red-500';
+                }
+            });
+
+            feedbackEl.innerHTML = `<p class="font-bold">Explanation:</p><p>${q.explanation}</p>`;
+            feedbackEl.className = `feedback p-4 rounded-lg mt-6 ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`;
+            feedbackEl.classList.remove('hidden');
+        }
+
+        gradeBtn.addEventListener('click', () => {
+            isGraded = true;
+            let score = 0;
+            for (let i = 0; i < quizData.length; i++) {
+                if (userAnswers[i] === quizData[i].correct) {
+                    score++;
+                    questionStatus[i] = 'correct';
+                } else if (userAnswers[i] !== null) { // if answered
+                    questionStatus[i] = 'incorrect';
+                }
+            }
+            summaryEl.textContent = `Result: You got ${score} out of ${quizData.length} correct! Click a number to review.`;
+            summaryEl.classList.remove('hidden');
+            renderQuizHome();
+        });
+
+        // Initial Load
+        renderQuizHome();
+    </script>
+</body>
+</html>
